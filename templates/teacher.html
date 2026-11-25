@@ -1,0 +1,317 @@
+{% extends 'base.html' %}
+
+{% block title %}O'qituvchi Boshqaruv Paneli | Joriy Nazorat{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    
+    <!-- Yuqori panel: Sarlavha, Export va Audit tugmalari -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full bg-brand-100 text-brand-700 font-bold text-xs">O'qituvchi Paneli</span>
+                <span class="text-xs text-slate-400">•</span>
+                <span class="text-xs font-medium text-slate-600">Fan: <strong>Dasturlash fani</strong></span>
+            </div>
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight mt-1">
+                Joriy Nazorat Natijalari & Vedomost
+            </h1>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+            <!-- Audit jurnali tugmasi -->
+            <a href="{{ url_for('audit_view') }}" 
+               class="px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs flex items-center gap-2 transition-all shadow-sm">
+                <i class="fa-solid fa-clock-rotate-left text-amber-500"></i>
+                <span>Audit Jurnali</span>
+            </a>
+
+            <!-- Excel Export -->
+            <a href="{{ url_for('export_excel', search=search_query, group=group_filter) }}" 
+               class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-2 transition-all shadow-sm">
+                <i class="fa-solid fa-file-excel"></i>
+                <span>Excel (.xlsx) Yuklab Olish</span>
+            </a>
+
+            <!-- PDF Export -->
+            <a href="{{ url_for('export_pdf', search=search_query, group=group_filter) }}" 
+               class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs flex items-center gap-2 transition-all shadow-sm">
+                <i class="fa-solid fa-file-pdf"></i>
+                <span>PDF Vedomost</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistika kartalari (4 ta) -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Jami Talabalar</div>
+                <div class="text-2xl font-extrabold text-slate-900 font-mono">{{ total_students }}</div>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">O'tganlar (18–30)</div>
+                <div class="text-2xl font-extrabold text-emerald-600 font-mono">{{ passed_count }} <span class="text-xs font-sans text-slate-400 font-medium">({{ pass_rate }}%)</span></div>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl shrink-0">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+            <div>
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">O'tmaganlar (0–17)</div>
+                <div class="text-2xl font-extrabold text-rose-600 font-mono">{{ failed_count }}</div>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div>
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">O'rtacha Ball</div>
+                <div class="text-2xl font-extrabold text-slate-900 font-mono">{{ avg_score }} <span class="text-xs text-slate-400 font-sans">/ 30</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtr va Qidiruv Paneli -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+        <form method="GET" action="{{ url_for('teacher_dashboard') }}" class="flex flex-col sm:flex-row items-center gap-3">
+            <!-- Qidiruv maydoni -->
+            <div class="relative flex-1 w-full">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-sm">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <input type="text" name="search" value="{{ search_query }}"
+                    placeholder="Talaba F.I.Sh., guruh yoki yo'nalish bo'yicha qidirish..."
+                    class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition-all">
+            </div>
+
+            <!-- Guruh bo'yicha saralash -->
+            <div class="w-full sm:w-56">
+                <select name="group" onchange="this.form.submit()"
+                    class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none">
+                    <option value="">Barcha guruhlar</option>
+                    {% for g in all_groups %}
+                    <option value="{{ g }}" {% if group_filter == g %}selected{% endif %}>{{ g }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Qidirish & Tozalash tugmalari -->
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <button type="submit" class="flex-1 sm:flex-initial px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs sm:text-sm rounded-xl transition-all shadow-sm">
+                    Qidirish
+                </button>
+                {% if search_query or group_filter %}
+                <a href="{{ url_for('teacher_dashboard') }}" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs sm:text-sm rounded-xl transition-all">
+                    Tozalash
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Talabalar Natijalari Jadvali -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[11px] font-bold">
+                        <th class="py-3.5 px-4 text-center">№</th>
+                        <th class="py-3.5 px-4">F.I.Sh.</th>
+                        <th class="py-3.5 px-4">Yo‘nalish</th>
+                        <th class="py-3.5 px-4 text-center">Kurs</th>
+                        <th class="py-3.5 px-4 text-center">Guruh</th>
+                        <th class="py-3.5 px-4 text-center">To‘g‘ri</th>
+                        <th class="py-3.5 px-4 text-center">Noto‘g‘ri</th>
+                        <th class="py-3.5 px-4 text-center">To‘plangan ball</th>
+                        <th class="py-3.5 px-4 text-center">Natija</th>
+                        <th class="py-3.5 px-4 text-center">Test sanasi va vaqti</th>
+                        <th class="py-3.5 px-4 text-center">Amallar</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% if results %}
+                        {% for r in results %}
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                            <td class="py-3 px-4 text-center font-bold text-slate-400">{{ loop.index }}</td>
+                            <td class="py-3 px-4 font-semibold text-slate-900">
+                                <div>{{ r.full_name }}</div>
+                                {% if r.is_modified_by_teacher %}
+                                <span class="inline-block text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-medium mt-0.5">
+                                    <i class="fa-solid fa-pen-to-square"></i> O'zgartirilgan
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-4 text-slate-600">{{ r.direction }}</td>
+                            <td class="py-3 px-4 text-center font-mono">{{ r.course }}-kurs</td>
+                            <td class="py-3 px-4 text-center">
+                                <span class="font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded text-xs">
+                                    {{ r.group_name }}
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 text-center font-bold text-emerald-600 font-mono">{{ r.correct_count }}</td>
+                            <td class="py-3 px-4 text-center font-bold text-rose-600 font-mono">{{ r.incorrect_count }}</td>
+                            <td class="py-3 px-4 text-center">
+                                <span class="font-bold font-mono text-base {% if r.total_score >= 18 %}text-emerald-600{% else %}text-rose-600{% endif %}">
+                                    {{ r.total_score }}
+                                </span>
+                                <span class="text-xs text-slate-400 font-mono">/ {{ r.max_score }}</span>
+                            </td>
+                            <td class="py-3 px-4 text-center">
+                                {% if 'o‘tdi' in r.status_text|lower %}
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <i class="fa-solid fa-check text-[10px]"></i>
+                                        <span>{{ r.status_text }}</span>
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                        <i class="fa-solid fa-xmark text-[10px]"></i>
+                                        <span>{{ r.status_text }}</span>
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-4 text-center text-xs text-slate-500 font-mono">
+                                {{ r.finished_at or r.started_at }}
+                                {% if r.tab_switch_count > 0 %}
+                                <div class="text-[11px] text-amber-600 font-sans font-medium">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> {{ r.tab_switch_count }} ta chiqish
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-4 text-center whitespace-nowrap">
+                                <div class="flex items-center justify-center gap-1.5">
+                                    <!-- Batafsil ko'rish tugmasi -->
+                                    <button type="button" 
+                                            onclick="openDetailModal({{ r.session_id }})"
+                                            title="Batafsil ko'rish"
+                                            class="w-8 h-8 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-700 flex items-center justify-center transition-colors">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                    <!-- Ballni tahrirlash tugmasi -->
+                                    <button type="button" 
+                                            onclick="openEditScoreModal({{ r.session_id }}, '{{ r.full_name }}', {{ r.total_score }})"
+                                            title="Ballni tahrirlash (Audit)"
+                                            class="w-8 h-8 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 flex items-center justify-center transition-colors">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="11" class="py-10 text-center text-slate-400">
+                                <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-2 text-slate-400 text-xl">
+                                    <i class="fa-solid fa-inbox"></i>
+                                </div>
+                                <p class="text-sm">Hozircha hech qanday natija topilmadi.</p>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 1: Batafsil ko'rish modali -->
+<div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200">
+        <!-- Modal header -->
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-bold text-slate-900" id="detailStudentName">Talaba Natijasi</h3>
+                <p class="text-xs text-slate-500" id="detailStudentInfo">Guruh va Yo'nalish</p>
+            </div>
+            <button onclick="closeDetailModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Modal body: Savollar va javoblar ro'yxati -->
+        <div class="p-6 overflow-y-auto space-y-4 flex-1" id="detailQuestionsList">
+            <div class="text-center py-8 text-slate-400">
+                <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+                <p class="text-xs">Yuklanmoqda...</p>
+            </div>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="p-4 border-t border-slate-100 flex justify-end">
+            <button onclick="closeDetailModal()" class="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs">
+                Yopish
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2: Ballni tahrirlash (Audit bilan) modali -->
+<div id="editScoreModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square text-amber-500"></i>
+                <span>Natijani O'zgartirish (Audit)</span>
+            </h3>
+            <button onclick="closeEditScoreModal()" class="text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <form id="editScoreForm" onsubmit="handleScoreUpdate(event)" class="space-y-4">
+            <input type="hidden" id="editSessionId">
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Talaba:</label>
+                <div id="editStudentName" class="font-bold text-sm text-slate-900 bg-slate-50 p-2.5 rounded-xl border border-slate-200"></div>
+            </div>
+
+            <div>
+                <label for="editNewScore" class="block text-xs font-semibold text-slate-700 mb-1">
+                    Yangi Ball (0 dan 30 gacha) <span class="text-red-500">*</span>
+                </label>
+                <input type="number" id="editNewScore" min="0" max="30" required
+                    class="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 text-sm font-bold font-mono focus:ring-2 focus:ring-brand-500 outline-none">
+                <span class="text-[11px] text-slate-400 mt-1 block">18–30: O'tdi, 0–17: O'tmadi</span>
+            </div>
+
+            <div>
+                <label for="editReason" class="block text-xs font-semibold text-slate-700 mb-1">
+                    O'zgartirish Sababi (Audit jurnali uchun majburiy) <span class="text-red-500">*</span>
+                </label>
+                <textarea id="editReason" rows="3" required
+                    placeholder="Masalan: Apellyatsiya natijasiga ko'ra 2-savol javobi inobatga olindi..."
+                    class="w-full px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm focus:ring-2 focus:ring-brand-500 outline-none"></textarea>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button type="button" onclick="closeEditScoreModal()"
+                    class="flex-1 py-2 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs">
+                    Bekor qilish
+                </button>
+                <button type="submit" id="btnSubmitScoreChange"
+                    class="flex-1 py-2 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs shadow">
+                    Saqlash & Auditga yozish
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/teacher.js') }}"></script>
+{% endblock %}

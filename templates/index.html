@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}Joriy Nazoratga Kirish | Python Dasturlash{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Hero / Intro qismi -->
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 border border-brand-200 text-brand-700 text-xs font-semibold mb-3">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>Masofaviy Ta'lim & Joriy Baholash</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            Dasturlash Fanidan Joriy Nazorat
+        </h1>
+        <p class="mt-2 text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">
+            Testni boshlashdan oldin quyidagi shaxsiy ma'lumotlaringizni to'liq va aniq kiriting.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- Qoidalar & Yo'riqnoma kartasi (5 ustun) -->
+        <div class="lg:col-span-5 space-y-4">
+            <div class="bg-gradient-to-br from-slate-900 via-brand-950 to-slate-900 text-white p-6 rounded-2xl shadow-xl border border-slate-800">
+                <h2 class="text-lg font-bold flex items-center gap-2 mb-4 text-brand-300">
+                    <i class="fa-solid fa-circle-info text-brand-400"></i>
+                    <span>Test Qoidalari va Nizomi</span>
+                </h2>
+                <ul class="space-y-3.5 text-xs sm:text-sm text-slate-300">
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-clock text-amber-400 mt-1"></i>
+                        <span><strong>Vaqt:</strong> Jami 30 daqiqa (taymer avtomatik sanaydi).</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-list-check text-emerald-400 mt-1"></i>
+                        <span><strong>Savollar soni:</strong> 30 ta tasodifiy savol (7 ta mavzudan).</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-award text-indigo-400 mt-1"></i>
+                        <span><strong>Baholash:</strong> Maksimal 30 ball (18–30: O'tdi, 0–17: O'tmadi).</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-fingerprint text-rose-400 mt-1"></i>
+                        <span><strong>Urinishlar soni:</strong> Har bir talaba faqat <strong>1 marta</strong> topshira oladi.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-shield-virus text-cyan-400 mt-1"></i>
+                        <span><strong>Shaffoflik:</strong> Savollarni ko'chirish taqiqlanadi, boshqa sahifaga o'tishlar qayd etiladi.</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 7 ta mavzu ma'lumoti -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm text-xs text-slate-600">
+                <h3 class="font-bold text-slate-800 mb-2.5 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-brand-600"></i>
+                    <span>Savollar qamrab olgan mavzular:</span>
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 font-medium">
+                    <span class="p-1.5 bg-slate-50 rounded flex items-center gap-1.5"><i class="fa-solid fa-check text-brand-500 text-[10px]"></i> Python tili va sintaksis</span>
+                    <span class="p-1.5 bg-slate-50 rounded flex items-center gap-1.5"><i class="fa-solid fa-check text-brand-500 text-[10px]"></i> String va sonlar</span>
+                    <span class="p-1.5 bg-slate-50 rounded flex items-center gap-1.5"><i class="fa-solid fa-check text-brand-500 text-[10px]"></i> While sikli</span>
+                    <span class="p-1.5 bg-slate-50 rounded flex items-center gap-1.5"><i class="fa-solid fa-check text-brand-500 text-[10px]"></i> Lug‘atlar (dict)</span>
+                    <span class="p-1.5 bg-slate-50 rounded flex items-center gap-1.5"><i class="fa-solid fa-check text-brand-500 text-[10px]"></i> Klasslar va OOP</span>
+                    <span class="p-1.5 bg-slate-50 rounded flex items-center gap-1.5"><i class="fa-solid fa-check text-brand-500 text-[10px]"></i> O‘zgaruvchilar va tiplar</span>
+                    <span class="p-1.5 bg-slate-50 rounded flex items-center gap-1.5 sm:col-span-2"><i class="fa-solid fa-check text-brand-500 text-[10px]"></i> Shartli ifodalar (if-else)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forma kartasi (7 ustun) -->
+        <div class="lg:col-span-7">
+            <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-md">
+                <div class="border-b border-slate-100 pb-4 mb-6">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-id-card text-brand-600"></i>
+                        <span>Talaba Ro'yxatdan O'tish</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Iltimos, maydonlarni passport yoki talabalik hujjatingizga mos holda to'ldiring.
+                    </p>
+                </div>
+
+                <form action="{{ url_for('start_exam') }}" method="POST" class="space-y-4" id="registrationForm">
+                    <!-- Fan nomi (avtomatik) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Fan Nomi
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-book-bookmark text-brand-600"></i>
+                            </div>
+                            <input type="text" value="Dasturlash" readonly
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-100 border border-slate-300 rounded-xl text-slate-700 font-semibold text-sm cursor-not-allowed select-none focus:outline-none">
+                            <span class="absolute right-3 top-2.5 text-xs text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-200 font-medium">Avtomatik</span>
+                        </div>
+                    </div>
+
+                    <!-- F.I.Sh. -->
+                    <div>
+                        <label for="full_name" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Familiya, Ism va Sharifingiz <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <input type="text" id="full_name" name="full_name" required
+                                placeholder="Masalan: Karimov Anvar Jasur o'g'li"
+                                class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-800 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Yo'nalish -->
+                    <div>
+                        <label for="direction" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Ta'lim Yo'nalishi <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-compass-drafting"></i>
+                            </div>
+                            <input type="text" id="direction" name="direction" required
+                                placeholder="Masalan: Dasturiy injiniring yoki Axborot xavfsizligi"
+                                class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-800 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Kurs va Guruh (2 ustun) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="course" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Kurs <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-graduation-cap"></i>
+                                </div>
+                                <select id="course" name="course" required
+                                    class="w-full pl-10 pr-8 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-800 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all outline-none appearance-none">
+                                    <option value="" disabled selected>Kursni tanlang</option>
+                                    <option value="1">1-kurs</option>
+                                    <option value="2">2-kurs</option>
+                                    <option value="3">3-kurs</option>
+                                    <option value="4">4-kurs</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400 text-xs">
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="group_name" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Guruh (Faqat raqam) <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-users"></i>
+                                </div>
+                                <input type="text" id="group_name" name="group_name" required inputmode="numeric" pattern="[0-9]+"
+                                    oninput="this.value = this.value.replace(/\D/g, '')"
+                                    placeholder="Faqat raqam kiriting (masalan: 214)"
+                                    class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-800 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all outline-none">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tasdiq sharti -->
+                    <div class="pt-2">
+                        <label class="flex items-start gap-2.5 cursor-pointer text-xs text-slate-600">
+                            <input type="checkbox" required class="mt-0.5 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                            <span>Men test qoidalari va shaffoflik talablari bilan tanishdim. Testni bir marta topshirishimni tasdiqlayman.</span>
+                        </label>
+                    </div>
+
+                    <!-- Boshlash tugmasi -->
+                    <div class="pt-3">
+                        <button type="submit"
+                            class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white font-bold text-base shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2 transition-all transform active:scale-[0.99]">
+                            <span>Testni Boshlash</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

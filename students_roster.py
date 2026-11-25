@@ -1,0 +1,162 @@
+# -*- coding: utf-8 -*-
+"""
+Talabalar rasmiy ro'yxati (HEMIS ID, F.I.Sh., Guruh)
+Jami: 130 ta talaba (6 ta guruh):
+- 9mt-26 ATT (o'z): 23 ta
+- 10mt-26 ATT (o'z): 23 ta
+- 11mt-26 ATT (o'z): 23 ta
+- 12mt-26 ATT (o'z): 16 ta
+- 13mt-26 ATT (o'z): 29 ta
+- 14mt-26 ATT (o'z): 16 ta
+"""
+
+STUDENTS_ROSTER = [
+    # --- 9mt-26 ATT (o'z) (23 ta) ---
+    {"id": "315261102785", "name": "BO‘RONBOYEVA MUXLISA KOMILJON QIZI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102788", "name": "BUVAXONOV YAHYOBEK AHRORJON O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102943", "name": "YUSUPOV SAIDMARDONBEK XASAN O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102931", "name": "TO‘YCHIBOYEV NE’MAT SHUXRAT O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102783", "name": "BAXROMOV ELYOR ILXOM O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102880", "name": "NAZAROV SARDOR HUSAN O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102910", "name": "RAXMONBERDIYEV MIRJALOL MUXIDDIN O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102893", "name": "QOZOQBOYEV SARDOR G‘ULOM O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102794", "name": "ESHPO‘LATOV AKBAR ESHNAZAR O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102881", "name": "NIG‘MATOV DOSTON SHUXRATOVICH", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261103106", "name": "BOBONIYOZOV HASAN ABDIMALIK O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261103378", "name": "AXMADOV BAXROM AXTAM O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102775", "name": "ALIJONOV OZODBEK AKMALJON O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261103030", "name": "SAMADOV DONIYOR BOBIROVICH", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102885", "name": "OCHILOV MIRKOMIL RAXMONQUL O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102778", "name": "ASOMIDDINOV ASROLXON ASQADXON O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102854", "name": "KUNUZOQOV NURBEK FARXOD O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102799", "name": "IKROMOV ZAXRIDDIN NURIDDIN O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102860", "name": "MAMADALIYEV HOJIAKBAR SHERALI O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102771", "name": "ABDUSHUKUROV OBIDJON ILXOM O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102878", "name": "NAMOZOV ABDULAZIZ ISLOM O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102920", "name": "SHODIYEV ASADBEK SHERALI O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+    {"id": "315261102776", "name": "ANORBOYEV SHERMUHAMMAD VALIJON O‘G‘LI", "group": "9mt-26 ATT (o'z)"},
+
+    # --- 10mt-26 ATT (o'z) (23 ta) ---
+    {"id": "315261103381", "name": "XOJIYEV AMIRXON MAVLUTJONOVICH", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102938", "name": "XO‘JABOYEV NODIRBEK DAVRONBEK O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102877", "name": "NAMAZBAYEV ELNUR ARMAN O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102789", "name": "CHUMONBOYEV MUHAMMADQODIR MURODALI O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102774", "name": "ABROROV ABDULLOH ALISHER O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102932", "name": "TOYIROV FARRUH BAHODIR O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102915", "name": "RUSTAMOV ASADBEK ZAFAR O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102780", "name": "BABAJANOVA MUXADDAS TURABAYEVNA", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102886", "name": "OROLBOYEV OZODBEK OTABEK O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102933", "name": "UMMATKULOV AZAMATBEK GAYRAT O'G'LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102791", "name": "ERKINOV XURSHID BAXTIYOR O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102891", "name": "QILICHOV OZODBEK YORQIN O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102781", "name": "BAHODIROV ISLOMJON ELMURODOVICH", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102927", "name": "TOGANBEKOV RAMZIDDIN XUSNIDIN O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102800", "name": "ILHOMJONOVA SAODAT OLIMJON QIZI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261103390", "name": "BAXROMOV SARDOR BAXODIR O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261103346", "name": "XAMROYEV MIRSAID SAMAD O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102761", "name": "ABDULLAXONOV FAYZULLOXON ANVARXON O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102906", "name": "RAHIMOV NODIR MUZAFFAR O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102941", "name": "YOQUBOV SHERZODBEK SHUKURALI O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102762", "name": "ABDULLAYEV AKMAL O‘TKIRJON O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102806", "name": "JUMANAZAROV MUHAMMADNOZIM G‘OLIBJONOVICH", "group": "10mt-26 ATT (o'z)"},
+    {"id": "315261102869", "name": "MAZBUTOV ASADBEK BAHODIR O‘G‘LI", "group": "10mt-26 ATT (o'z)"},
+
+    # --- 11mt-26 ATT (o'z) (23 ta) ---
+    {"id": "315261102924", "name": "SOTVOLDIYEV DILSHOD SHERZOD O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102852", "name": "KULMATOV MUHAMMAD ABDURAUF O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102843", "name": "KAMOLOV FAZLIDDIN NIZOMIDDIN O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102917", "name": "SAFAROV AZIZBEK ELMUROD O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102890", "name": "QAHHAROV QILICHBEK ZARIF O'G'LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102758", "name": "ABDIYEV JAMSHID SAMAD O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102802", "name": "JALOLIDDINOV DIYORBEK BAXRIDDIN O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102923", "name": "SODIQOV DILSHODBEK RAXMON O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102795", "name": "FAYZULLOYEV DILSHODBEK XAYRIDDIN O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102909", "name": "RAXIMBERGANOV UCHQUNBEK JAHONGIR O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102857", "name": "MAHKAMOV DAVRON KELDIBEK O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102876", "name": "NAHALBOYEV ODILBEK ASLIDDIN O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102912", "name": "REYIMBOYEV DIYORBEK RAXMONBERGAN O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102904", "name": "QUCHQOROVA SHAHZODA BAXRIDDIN QIZI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102930", "name": "TOSHNIYOZOV AZIZBEK SHUHRATILLO O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102871", "name": "MIRVOLIYEV MUROD MIRZATURSINOVICH", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102777", "name": "ASATULLAYEV SARVARJON SOBIRJON O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102940", "name": "XUDOYBERDIYEVA FOTIMA RUZIMURODOVNA", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102804", "name": "JO‘RAQULOVA HULKAR ADHAM QIZI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102770", "name": "ABDUSATTOROVA O‘G‘ILOY ABDULLA QIZI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102759", "name": "ABDUKARIMOV ELYOR BAXTIYOR O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102939", "name": "XUDAYBERGANOV SOBIRJON ADAMBOY O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+    {"id": "315261102892", "name": "QO‘CHQOROV SHUXRAT SHOKIRJON O‘G‘LI", "group": "11mt-26 ATT (o'z)"},
+
+    # --- 12mt-26 ATT (o'z) (16 ta) ---
+    {"id": "315261102911", "name": "RAXMONOV BEKZOD BURXON O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261102864", "name": "MAMIROV BEKNUR TOXIR O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261103305", "name": "QURBANOV TOTLIBOY ZAMON O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261102887", "name": "O‘ROQBOYEV NODIRBEK LUTFULLA O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261102935", "name": "XAKIMOVA SARVINOZ SUXROB QIZI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261102934", "name": "USMONQULOV OTABEK ULUG‘BEK O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261102937", "name": "XAYRULLAYEV XUSAN XABIBULLO O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261102862", "name": "MAMARAXIMOV SHOHRUH OZODBEK O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261102766", "name": "ABDUQODIROV SHODIYOR KAMOL O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261103169", "name": "ABDURASULOV XOJIAKBAR BAHODIR O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261103107", "name": "ZOIROV MADRAHIM ABDUMALIK O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261102866", "name": "MAVLONOV ABRORXON AKMALXON O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261102884", "name": "OBBOSOVA MASHXURAXON SOLIJONOVNA", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261102760", "name": "ABDUKARIMOV MUXAMMADKABIR AZIZ O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261102769", "name": "ABDURAXIMOV ASRORBEK ABROR O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+    {"id": "315261102793", "name": "ESHNAZAROV MIRJALOL BAXTIYOR O‘G‘LI", "group": "12mt-26 ATT (o'z)"},
+
+    # --- 13mt-26 ATT (o'z) (29 ta) ---
+    {"id": "315261102919", "name": "SEYTMURATOV XUSINBAY URAZBAYEVICH", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102872", "name": "MIRZAXALILOV MUHAMMADDIYOR RASULJON O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102926", "name": "TLEUNIYAZOV AKRAMBEK QABÍL ULÍ", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102803", "name": "JO‘RABEKOV ZAHIRIDDIN SANJARBEK O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102790", "name": "DAVLATBOYEV SHAHBOZ SIROJIDDIN O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102768", "name": "ABDURASHIDOV RAMAZON ABDURASUL O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102914", "name": "RUSTAMOV ASAD AVAZ O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102870", "name": "MIRKARIMOV BEKZOD MIRZOID O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102853", "name": "KUNIZOQOV OG‘ABEK ZIYODULLAYEVICH", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102942", "name": "YUSUPBOYEV HUSANBOY AZAMAT O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102929", "name": "TO‘RABOYEVA SEVINCHOY XAMRO QIZI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261103165", "name": "XAYRULLAYEV ASADBEK FARXOD O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102928", "name": "TOHIROV BEHRUZBEK RAVSHANBEK O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102801", "name": "ISMAILOV MURODBEK SHAVKAT O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102888", "name": "OTABOYEV XURSHID SAYDULLO O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102936", "name": "XAYDAROV NAMOZ SAFAR O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102847", "name": "KARIMOV ISLOM SHARIP O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102850", "name": "KOCHKAROV SHOHRUH KENGESH OG‘LÍ", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102907", "name": "RAJABQULOV OZODBEK BAHODIRJON O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261103068", "name": "SUR‘ATOV MUHAMMAD BURXONBEK O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102848", "name": "KENJAYEV SHOXRUZBEK UTKIR O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102918", "name": "SAYDULLAYEV JAVOHIR AKRAM O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102873", "name": "MUSTAFAQULOV SHAHRIYOR SHAMSIDDIN O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102797", "name": "HABIBULLAYEV DONIYORBEK MA‘RUFJON O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102922", "name": "SOBITOV SHOXRIYOR QUDRATILLO O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102765", "name": "ABDUQAHHOROV ABDULHAY ABDULATIF O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102867", "name": "MAXAMADJONOV ABDULLOH SOLIHJON O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261102773", "name": "ABDUXAKIMOV SARDORJON SARVAR O‘G‘LI", "group": "13mt-26 ATT (o'z)"},
+    {"id": "315261103372", "name": "NORMURODOV XOLMUROD HAMZAYEVICH", "group": "13mt-26 ATT (o'z)"},
+
+    # --- 14mt-26 ATT (o'z) (16 ta) ---
+    {"id": "315261102983", "name": "MUHAMMADJONOVA SAODATOY FAXRIDDIN QIZI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102786", "name": "BO‘SINOV OZODBEK UMIDJON O‘G‘LI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102792", "name": "ESHMAMATOV IBROHIM BAXRIDDIN O‘G‘LI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102796", "name": "G‘OFIRJONOV JAHONGIR QOBILJON O‘G‘LI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102865", "name": "MARDONOV SARVARBEK JASUR O‘G‘LI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102782", "name": "BAHROMQULOV SHOHJAHON OLIMJON O‘G‘LI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261103012", "name": "MURTAZAYEV NODIRJON UMID O‘G‘LI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102921", "name": "SHONAZAROV ANVAR YUSUFBOY O‘G‘LI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102763", "name": "ABDULLAYEVA SOHIBA BAROT QIZI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102889", "name": "PARDABOYEV OTABEK ALISHER O‘G‘LI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102779", "name": "AXMATALIYEV IBROHIM ABRORJON O‘G‘LI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102767", "name": "ABDURAHMANOV ASADBEK DILSHOD O‘G‘LI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102849", "name": "KENJAYEVA XADICHA SOBIRJON QIZI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102863", "name": "MAMIRJONOV MUXAMMADAZIZ MANSURBEK O‘G‘LI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102845", "name": "KARIMOV G‘AYRATJON SHUHRAT O‘G‘LI", "group": "14mt-26 ATT (o'z)"},
+    {"id": "315261102859", "name": "MAJIDOVA NOZIMA MAJIDOVNA", "group": "14mt-26 ATT (o'z)"}
+]
+
+# Maxsus Sinov (Test) Talaba - O'qituvchi tizimni tekshirib ko'rishi uchun
+TEST_STUDENT = {
+    "id": "000000000000",
+    "name": "O'QITUVCHI SINOV TALABASI (TEST REJIMI)",
+    "group": "SINOV (TEST)"
+}

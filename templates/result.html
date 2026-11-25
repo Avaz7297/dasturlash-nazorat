@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Test Natijasi | Python Dasturlash{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto py-4">
+    
+    <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xl text-center relative overflow-hidden">
+        
+        <!-- Yuqori fon bezagi -->
+        <div class="absolute top-0 left-0 right-0 h-3 {% if 'o‘tdi' in exam.status_text|lower %}bg-gradient-to-r from-emerald-500 to-teal-500{% else %}bg-gradient-to-r from-rose-500 to-red-600{% endif %}"></div>
+
+        <!-- Status belgisi -->
+        <div class="mb-5 inline-flex items-center justify-center">
+            {% if 'o‘tdi' in exam.status_text|lower %}
+                <div class="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-4xl shadow-lg shadow-emerald-500/20 ring-8 ring-emerald-50">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            {% else %}
+                <div class="w-20 h-20 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-4xl shadow-lg shadow-rose-500/20 ring-8 ring-rose-50">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sarlavha va Baho -->
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
+            {{ exam.status_text }}
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 mb-6">
+            Dasturlash fanidan masofaviy joriy nazorat sinovi yakunlandi.
+        </p>
+
+        <!-- Katta ball ko'rsatkichi -->
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-6">
+            <div class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">To'plangan Ball</div>
+            <div class="flex items-baseline justify-center gap-2">
+                <span class="text-5xl font-extrabold {% if 'o‘tdi' in exam.status_text|lower %}text-emerald-600{% else %}text-rose-600{% endif %} font-mono">
+                    {{ exam.total_score }}
+                </span>
+                <span class="text-2xl text-slate-400 font-semibold font-mono">/ {{ exam.max_score }}</span>
+            </div>
+            
+            <div class="mt-4 flex items-center justify-center gap-6 text-xs sm:text-sm font-semibold">
+                <div class="flex items-center gap-2 text-emerald-600">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>{{ exam.correct_count }} ta to'g'ri</span>
+                </div>
+                <div class="w-px h-4 bg-slate-300"></div>
+                <div class="flex items-center gap-2 text-rose-600">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    <span>{{ exam.incorrect_count }} ta noto'g'ri</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Talaba ma'lumotlari kartasi -->
+        <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm text-left mb-6 space-y-2.5 text-xs sm:text-sm">
+            <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+                <span class="text-slate-500">Talaba F.I.Sh.:</span>
+                <span class="font-bold text-slate-900 text-right">{{ exam.full_name }}</span>
+            </div>
+            <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+                <span class="text-slate-500">Yo'nalish va Kurs:</span>
+                <span class="font-semibold text-slate-800 text-right">{{ exam.direction }} ({{ exam.course }}-kurs)</span>
+            </div>
+            <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+                <span class="text-slate-500">Akademik Guruh:</span>
+                <span class="font-bold text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-md">{{ exam.group_name }}</span>
+            </div>
+            <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+                <span class="text-slate-500">Fan:</span>
+                <span class="font-semibold text-slate-800">{{ exam.subject }}</span>
+            </div>
+            <div class="flex items-center justify-between py-1.5 border-b border-slate-100">
+                <span class="text-slate-500">Topshirilgan vaqt:</span>
+                <span class="font-mono text-slate-700">{{ exam.finished_at or exam.started_at }}</span>
+            </div>
+            <div class="flex items-center justify-between py-1.5">
+                <span class="text-slate-500">Boshqa sahifaga o'tishlar (ogohlantirish):</span>
+                <span class="font-semibold {% if exam.tab_switch_count > 0 %}text-amber-600 bg-amber-50 px-2 py-0.5 rounded{% else %}text-emerald-600{% endif %}">
+                    {{ exam.tab_switch_count }} marta
+                </span>
+            </div>
+        </div>
+
+        <!-- Xabar / Tavsiya -->
+        <div class="p-4 rounded-xl text-xs text-left mb-6 {% if 'o‘tdi' in exam.status_text|lower %}bg-emerald-50 text-emerald-800 border border-emerald-200{% else %}bg-rose-50 text-rose-800 border border-rose-200{% endif %}">
+            <div class="flex items-start gap-2.5">
+                <i class="fa-solid fa-circle-info mt-0.5 text-sm"></i>
+                <div>
+                    {% if 'o‘tdi' in exam.status_text|lower %}
+                        <strong>Tabriklaymiz!</strong> Siz joriy nazorat talablarini muvaffaqiyatli bajardingiz. Ushbu natija o'qituvchi bazasida qayd etildi.
+                    {% else %}
+                        <strong>Diqqat!</strong> Siz belgilangan minimal o'tish balini (18 ball) to'play olmadingiz. Qayta topshirish bo'yicha fanni o'qituvchi bilan maslahatlashing.
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Amallar -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button onclick="window.print()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-sm flex items-center justify-center gap-2 transition-all">
+                <i class="fa-solid fa-print"></i>
+                <span>Natijani chop etish</span>
+            </button>
+            <a href="{{ url_for('index') }}" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all">
+                <i class="fa-solid fa-house"></i>
+                <span>Bosh sahifaga qaytish</span>
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
