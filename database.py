@@ -278,7 +278,9 @@ def get_all_results_for_teacher(search_query="", group_filter=""):
         e.is_modified_by_teacher
     FROM exam_sessions e
     JOIN students s ON e.student_id = s.id
-    WHERE 1=1
+    WHERE e.id IN (
+        SELECT MAX(id) FROM exam_sessions GROUP BY student_id
+    )
     '''
     params = []
 

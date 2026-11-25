@@ -201,16 +201,69 @@ function handleStudentIdInput(input) {
         if (dirEl) dirEl.value = "Axborot tizimlari va texnologiyalari";
         if (crsEl) crsEl.value = "1";
 
-        // Tekshirish: Talaba testni yakunlab, natija olganmi?
-        const existingList = getStoredStudents();
-        const alreadyTested = existingList.find(s => s.studentId === idVal);
-        if (alreadyTested) {
-            if (statusEl) {
-                statusEl.innerHTML = '<span class="text-rose-700 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">⚠️ Ushbu talaba allaqachon test topshirgan (' + alreadyTested.totalScore + ' ball)! Qayta topshirish taqiqlanadi.</span>';
+                // Tekshirish: Talaba testni yakunlab, natija olganmi?
+        function processTestedCheck(alreadyTested) {
+            if (alreadyTested) {
+                if (statusEl) {
+                    statusEl.innerHTML = '<span class="text-rose-700 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">⚠️ Ushbu talaba allaqachon test topshirgan! Qayta topshirish taqiqlanadi.</span>';
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+                }
+                alert("Hurmatli " + found.name + " (ID: " + idVal + ")!
+Siz allaqachon ushbu joriy nazoratni topshirgansiz.
+
+Qayta topshirish qat'iyan taqiqlanadi! Sizga faqat avvalgi natijangiz ko'rsatiladi.");
+                showResultPage(alreadyTested);
+            } else {
+                if (statusEl) {
+                    statusEl.innerHTML = '<span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">✓ Talaba aniqlandi (' + found.group + ')</span>';
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+                }
             }
+        }
+
+        // Agar server orqali ishlayotgan bo'lsa, o'qituvchi o'chirganmi yoki yo'qmi tekshirish
+        if (window.location.protocol.startsWith('http')) {
+            fetch('/api/check_student_status?id=' + encodeURIComponent(idVal))
+                .then(r => r.json())
+                .then(d => {
+                    if (d && d.tested && d.session) {
+                        processTestedCheck({
+                            studentId: idVal,
+                            fullName: d.session.fullName,
+                            groupName: d.session.groupName,
+                            totalScore: d.session.totalScore,
+                            maxScore: 30,
+                            statusText: d.session.statusText,
+                            finishedAt: d.session.finishedAt
+                        });
+                    } else {
+                        // O'qituvchi o'chirgan yoki hali topshirmagan bo'lsa - ruxsat berish
+                        // Mahalliy xotiradagi eski blokni ham tozalash
+                        const curList = getStoredStudents().filter(s => s.studentId !== idVal);
+                        SafeStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(curList));
+                        processTestedCheck(null);
+                    }
+                })
+                .catch(() => {
+                    const existingList = getStoredStudents();
+                    const alreadyTested = existingList.find(s => s.studentId === idVal);
+                    processTestedCheck(alreadyTested);
+                });
+            return;
         } else {
-            if (statusEl) {
-                statusEl.innerHTML = '<span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">✅ Tasdiqlandi: ' + found.name + ' (' + found.group + ')</span>';
+            const existingList = getStoredStudents();
+            const alreadyTested = existingList.find(s => s.studentId === idVal);
+            processTestedCheck(alreadyTested);
+            if (alreadyTested) return;
+        }
+        return;
+statusEl.innerHTML = '<span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">✅ Tasdiqlandi: ' + found.name + ' (' + found.group + ')</span>';
             }
         }
     } else {
@@ -947,44 +1000,51 @@ function syncResultsFromServer() {
         .then(data => {
             isSyncingServer = false;
             if (data && data.success && Array.isArray(data.results)) {
-                const current = getStoredStudents();
-                let changed = false;
+                // Har bir talaba bo'yicha FAQAT eng so'nggi natijani olish (eski natijalar ustiga yozilmasligi uchun)
+                const seenKeys = new Set();
+                const serverList = [];
                 data.results.forEach(sr => {
-                    const idx = current.findIndex(c => 
-                        (sr.student_id_number && c.studentId === sr.student_id_number) ||
-                        (c.fullName.toLowerCase() === (sr.full_name||'').toLowerCase() && String(c.groupName).trim() === String(sr.group_name).trim())
-                    );
-                    const formatted = {
-                        studentId: sr.student_id_number,
-                        fullName: sr.full_name,
-                        direction: sr.direction || "Axborot tizimlari va texnologiyalari",
-                        course: String(sr.course || "1"),
-                        groupName: sr.group_name,
-                        totalScore: sr.total_score,
-                        maxScore: sr.max_score || 30,
-                        correctCount: sr.correct_count,
-                        incorrectCount: sr.incorrect_count,
-                        statusText: sr.status_text || (sr.total_score >= 18 ? "Joriy nazoratdan o‘tdi" : "Joriy nazoratdan o‘tmadi"),
-                        finishedAt: sr.finished_at || sr.started_at,
-                        tabSwitchCount: sr.tab_switch_count || 0,
-                        isModified: !!sr.is_modified_by_teacher
-                    };
-                    if (idx !== -1) {
-                        if (current[idx].totalScore !== formatted.totalScore || current[idx].finishedAt !== formatted.finishedAt) {
-                            current[idx] = formatted;
-                            changed = true;
+                    const key = (sr.student_id_number && sr.student_id_number !== '000000000000') 
+                        ? sr.student_id_number 
+                        : (sr.full_name + '__' + sr.group_name);
+                    
+                    // Agar 000000000000 bo'lsa, har birini alohida emas, faqat eng oxirgisini olish
+                    if (sr.student_id_number === '000000000000') {
+                        if (!seenKeys.has('__TEST_STUDENT__')) {
+                            seenKeys.add('__TEST_STUDENT__');
+                            serverList.push(sr);
                         }
-                    } else {
-                        current.unshift(formatted);
-                        changed = true;
+                    } else if (!seenKeys.has(key)) {
+                        seenKeys.add(key);
+                        serverList.push(sr);
                     }
                 });
-                if (changed) {
-                    SafeStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(current));
-                    const teachDash = document.getElementById("teacherDashboard");
-                    if (teachDash && teachDash.style.display !== "none") {
-                        renderTeacherTable(true);
-                    }
+
+                // Serverdagi ro'yxatni formatlash
+                const formattedServerStudents = serverList.map(sr => ({
+                    id: sr.session_id || Date.now(),
+                    sessionId: sr.session_id,
+                    studentId: sr.student_id_number || "",
+                    fullName: sr.full_name,
+                    direction: sr.direction || "Axborot tizimlari va texnologiyalari",
+                    course: String(sr.course || "1"),
+                    groupName: sr.group_name,
+                    totalScore: sr.total_score,
+                    maxScore: sr.max_score || 30,
+                    correctCount: sr.correct_count,
+                    incorrectCount: sr.incorrect_count,
+                    statusText: sr.status_text || (sr.total_score >= 18 ? "Joriy nazoratdan o‘tdi" : "Joriy nazoratdan o‘tmadi"),
+                    finishedAt: sr.finished_at || sr.started_at,
+                    tabSwitchCount: sr.tab_switch_count || 0,
+                    isModified: !!sr.is_modified_by_teacher
+                }));
+
+                // Serverdan kelgan eng so'nggi ro'yxatni asosiy qilib saqlash
+                SafeStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(formattedServerStudents));
+
+                const teachDash = document.getElementById("teacherDashboard");
+                if (teachDash && teachDash.style.display !== "none") {
+                    renderTeacherTable(true);
                 }
             }
         })
@@ -1214,22 +1274,45 @@ function saveScoreEdit(e) {
 // 3. TALABA NATIJASINI O'CHIRISH (QAYTA TOPSHIRISHGA RUXSAT BERISH)
 function deleteStudentResult(studentId) {
     const students = getStoredStudents();
-    const st = students.find(s => s.id === studentId);
+    const st = students.find(s => s.id === studentId || s.sessionId === studentId);
     if (!st) return;
 
-    const confirmMsg = "Haqiqatan ham quyidagi talaba natijasini o'chirmoqchimisiz?\n\n" +
-        "• Talaba ID: " + (st.studentId || "-") + "\n" +
-        "• F.I.Sh.: " + st.fullName + "\n" +
-        "• Guruh: " + st.groupName + "\n" +
-        "• Ball: " + st.totalScore + " / 30 (" + st.statusText + ")\n\n" +
-        "DIQQAT: Natija o‘chirilgach, ushbu talaba testni qaytadan boshidan topshira oladi!";
+    const confirmMsg = "Haqiqatan ham quyidagi talaba natijasini o'chirmoqchimisiz?
+
+" +
+        "• Talaba ID: " + (st.studentId || "-") + "
+" +
+        "• F.I.Sh.: " + st.fullName + "
+" +
+        "• Guruh: " + st.groupName + "
+" +
+        "• Ball: " + st.totalScore + " / 30 (" + st.statusText + ")
+
+" +
+        "DIQQAT: Natija o‘chirilgach, ushbu talaba testni qaytadan topshira oladi!";
 
     if (!confirm(confirmMsg)) {
         return;
     }
 
-    // Ro'yxatdan o‘chirish
-    const updatedStudents = students.filter(s => s.id !== studentId);
+    // Server bazasidan ham to'liq o'chirish (talaba qayta topshira olishi uchun)
+    if (window.location.protocol.startsWith('http')) {
+        fetch('/api/teacher/delete_student', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: st.sessionId || st.id,
+                studentId: st.studentId || "",
+                fullName: st.fullName,
+                groupName: st.groupName
+            })
+        }).then(r => r.json()).then(() => {
+            syncResultsFromServer();
+        }).catch(() => {});
+    }
+
+    // Mahalliy xotiradan o‘chirish
+    const updatedStudents = students.filter(s => s.id !== studentId && s.sessionId !== studentId);
     SafeStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(updatedStudents));
 
     // Audit jurnaliga qayd etish
@@ -1247,7 +1330,7 @@ function deleteStudentResult(studentId) {
     });
     SafeStorage.setItem(STORAGE_KEY_AUDIT, JSON.stringify(auditLogs));
 
-    renderTeacherTable();
+    renderTeacherTable(true);
     alert("Talaba (" + st.fullName + ") natijasi muvaffaqiyatli o‘chirildi! Endi u testni qayta topshirishi mumkin.");
 }
 

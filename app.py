@@ -435,3 +435,89 @@ if __name__ == '__main__':
     print("=" * 60)
 
     app.run(host='0.0.0.0', port=5000, debug=False)
+
+
+@app.route('/api/teacher/delete_student', methods=['POST'])
+def api_teacher_delete_student():
+    """O'qituvchi talabani o'chirganda uni bazadan to'liq tozalash (talaba qayta topshira olishi uchun)"""
+    data = request.get_json() or {}
+    session_id = data.get('sessionId')
+    student_id_number = str(data.get('studentId', '')).strip()
+    full_name = data.get('fullName', '').strip()
+    group_name = data.get('groupName', '').strip()
+    teacher_username = data.get('teacher', 'admin')
+    reason = data.get('reason', 'O‘qituvchi tomonidan natija o‘chirildi (qayta topshirishga ruxsat)')
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if session_id:
+        delete_exam_session_with_audit(session_id, teacher_username, reason)
+    
+    if student_id_number:
+        # Ushbu student_id_number ga tegishli barcha sessiyalar va student yozuvlarini o'chirish
+        cursor.execute('''
+            SELECT e.id FROM exam_sessions e
+            JOIN students s ON e.student_id = s.id
+            WHERE s.student_id_number = ?
+        ''', (student_id_number,))
+        rows = cursor.fetchall()
+        for r in rows:
+            delete_exam_session_with_audit(r['id'], teacher_username, reason)
+
+        cursor.execute('DELETE FROM students WHERE student_id_number = ?', (student_id_number,))
+        conn.commit()
+
+    if full_name and group_name:
+        cursor.execute('''
+            SELECT e.id FROM exam_sessions e
+            JOIN students s ON e.student_id = s.id
+            WHERE LOWER(TRIM(s.full_name)) = LOWER(TRIM(?)) AND s.group_name = ?
+        ''', (full_name, group_name))
+        rows = cursor.fetchall()
+        for r in rows:
+            delete_exam_session_with_audit(r['id'], teacher_username, reason)
+
+        cursor.execute('DELETE FROM students WHERE LOWER(TRIM(full_name)) = LOWER(TRIM(?)) AND group_name = ?', (full_name, group_name))
+        conn.commit()
+
+    conn.close()
+    return jsonify({"success": True, "message": "Talaba muvaffaqiyatli o'chirildi va qayta topshirish imkoni berildi."})
+
+@app.route('/api/check_student_status')
+def api_check_student_status():
+    """Talaba ID sini kiritganda u bazada topshirgan holatda turibdimi yoki o'qituvchi o'chirganmi tekshirish"""
+    sid = request.args.get('id', '').strip()
+    if not sid:
+        return jsonify({"tested": False})
+    
+    # 000000000000 sinov ID si hech qachon bloklanmaydi
+    if sid == '000000000000':
+        return jsonify({"tested": False})
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT e.id, e.total_score, e.status_text, e.finished_at, s.full_name, s.group_name
+        FROM exam_sessions e
+        JOIN students s ON e.student_id = s.id
+        WHERE s.student_id_number = ? AND e.is_completed = 1
+        ORDER BY e.id DESC LIMIT 1
+    ''', (sid,))
+    row = cursor.fetchone()
+    conn.close()
+
+    if row:
+        return jsonify({
+            "tested": True,
+            "session": {
+                "sessionId": row['id'],
+                "totalScore": row['total_score'],
+                "statusText": row['status_text'],
+                "finishedAt": row['finished_at'],
+                "fullName": row['full_name'],
+                "groupName": row['group_name']
+            }
+        })
+    else:
+        return jsonify({"tested": False})
