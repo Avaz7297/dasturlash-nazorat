@@ -1003,15 +1003,20 @@ function handleStudentIdInput(input) {
     const groupEl = document.getElementById("regGroup");
     const dirEl = document.getElementById("regDirection");
     const crsEl = document.getElementById("regCourse");
+    const submitBtn = document.getElementById("btnSubmitStart");
 
     if (idVal.length < 12) {
         if (statusEl) {
             statusEl.innerHTML = '<span class="text-slate-500">12 xonali HEMIS ID kiriting (' + idVal.length + '/12)</span>';
         }
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        }
         return;
     }
 
-    // Sinov talabasi
+    // Sinov talabasi (O'qituvchi sinov rejimi - CHEKLOVLARSIZ)
     if (idVal === TEST_STUDENT_ID) {
         if (nameEl) nameEl.value = "O'QITUVCHI SINOV TALABASI (TEST REJIMI)";
         if (groupEl) groupEl.value = "SINOV (TEST)";
@@ -1019,6 +1024,10 @@ function handleStudentIdInput(input) {
         if (crsEl) crsEl.value = "1";
         if (statusEl) {
             statusEl.innerHTML = '<span class="text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">🧪 O\'qituvchi sinov rejimi faol (Cheklovlarsiz)</span>';
+        }
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
         }
         return;
     }
@@ -1030,7 +1039,6 @@ function handleStudentIdInput(input) {
         if (dirEl) dirEl.value = "Axborot tizimlari va texnologiyalari";
         if (crsEl) crsEl.value = "1";
 
-                // Tekshirish: Talaba testni yakunlab, natija olganmi?
         function processTestedCheck(alreadyTested) {
             if (alreadyTested) {
                 if (statusEl) {
@@ -1040,10 +1048,7 @@ function handleStudentIdInput(input) {
                     submitBtn.disabled = true;
                     submitBtn.classList.add("opacity-50", "cursor-not-allowed");
                 }
-                alert("Hurmatli " + found.name + " (ID: " + idVal + ")!
-Siz allaqachon ushbu joriy nazoratni topshirgansiz.
-
-Qayta topshirish qat'iyan taqiqlanadi! Sizga faqat avvalgi natijangiz ko'rsatiladi.");
+                alert("Hurmatli " + found.name + " (ID: " + idVal + ")!\nSiz allaqachon ushbu joriy nazoratni topshirgansiz.\n\nQayta topshirish qat\'iyan taqiqlanadi! Sizga faqat avvalgi natijangiz ko\'rsatiladi.");
                 showResultPage(alreadyTested);
             } else {
                 if (statusEl) {
@@ -1073,7 +1078,6 @@ Qayta topshirish qat'iyan taqiqlanadi! Sizga faqat avvalgi natijangiz ko'rsatila
                         });
                     } else {
                         // O'qituvchi o'chirgan yoki hali topshirmagan bo'lsa - ruxsat berish
-                        // Mahalliy xotiradagi eski blokni ham tozalash
                         const curList = getStoredStudents().filter(s => s.studentId !== idVal);
                         SafeStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(curList));
                         processTestedCheck(null);
@@ -1089,20 +1093,21 @@ Qayta topshirish qat'iyan taqiqlanadi! Sizga faqat avvalgi natijangiz ko'rsatila
             const existingList = getStoredStudents();
             const alreadyTested = existingList.find(s => s.studentId === idVal);
             processTestedCheck(alreadyTested);
-            if (alreadyTested) return;
-        }
-        return;
-statusEl.innerHTML = '<span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">✅ Tasdiqlandi: ' + found.name + ' (' + found.group + ')</span>';
-            }
+            return;
         }
     } else {
         if (statusEl) {
             statusEl.innerHTML = '<span class="text-rose-700 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">❌ Ushbu ID rasmiy talabalar ro\'yxatida topilmadi!</span>';
         }
+        if (nameEl) nameEl.value = "";
+        if (groupEl) groupEl.value = "";
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        }
     }
 }
 
-// O‘qituvchi sinov rejimini tezkor faollashtirish
 function setTeacherDemoMode() {
     const idInput = document.getElementById("regStudentId");
     if (idInput) {
@@ -2106,25 +2111,18 @@ function deleteStudentResult(studentId) {
     const st = students.find(s => s.id === studentId || s.sessionId === studentId);
     if (!st) return;
 
-    const confirmMsg = "Haqiqatan ham quyidagi talaba natijasini o'chirmoqchimisiz?
-
-" +
-        "• Talaba ID: " + (st.studentId || "-") + "
-" +
-        "• F.I.Sh.: " + st.fullName + "
-" +
-        "• Guruh: " + st.groupName + "
-" +
-        "• Ball: " + st.totalScore + " / 30 (" + st.statusText + ")
-
-" +
+    const confirmMsg = "Haqiqatan ham quyidagi talaba natijasini o'chirmoqchimisiz?\n\n" +
+        "• Talaba ID: " + (st.studentId || "-") + "\n" +
+        "• F.I.Sh.: " + st.fullName + "\n" +
+        "• Guruh: " + st.groupName + "\n" +
+        "• Ball: " + st.totalScore + " / 30 (" + st.statusText + ")\n\n" +
         "DIQQAT: Natija o‘chirilgach, ushbu talaba testni qaytadan topshira oladi!";
 
     if (!confirm(confirmMsg)) {
         return;
     }
 
-    // Server bazasidan ham to'liq o'chirish (talaba qayta topshira olishi uchun)
+    // Server bazasidan ham to'liq o‘chirish (talaba qayta topshira olishi uchun)
     if (window.location.protocol.startsWith('http')) {
         fetch('/api/teacher/delete_student', {
             method: 'POST',
