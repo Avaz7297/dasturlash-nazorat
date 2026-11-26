@@ -776,5 +776,20 @@
     "statusText": "Joriy nazoratdan o‘tdi",
     "finishedAt": "2026-11-26 09:19:26",
     "tabSwitchCount": 1
+  },
+  "315261102797": {
+    "studentId": "315261102797",
+    "fullName": "HABIBULLAYEV DONIYORBEK MA‘RUFJON O‘G‘LI",
+    "groupName": "13mt-26 ATT (o'z)",
+    "direction": "Axborot tizimlari va texnologiyalari",
+    "course": 1,
+    "totalScore": 30,
+    "maxScore": 30,
+    "correctCount": 30,
+    "incorrectCount": 0,
+    "statusText": "Joriy nazoratdan o‘tdi",
+    "finishedAt": "26/11/2026, 10:45:28",
+    "tabSwitchCount": 0,
+    "source_img": "msg_459_1.jpg"
   }
 }
