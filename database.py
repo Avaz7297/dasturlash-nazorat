@@ -99,6 +99,62 @@ def init_db():
             datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         ))
 
+
+    # Doimiy tasdiqlangan talabalar natijalarini avtomatik tiklash (agar bazada bo'lmasa)
+    verified_file = os.path.join(os.path.dirname(__file__), 'all_verified_submissions.json')
+    if os.path.exists(verified_file):
+        try:
+            with open(verified_file, 'r', encoding='utf-8') as vf:
+                submissions = json.load(vf)
+            for sid, sub in submissions.items():
+                s_num = str(sub.get('studentId', '')).strip()
+                s_name = str(sub.get('fullName', '')).strip()
+                s_grp = str(sub.get('groupName', '')).strip()
+                
+                cursor.execute('SELECT id FROM students WHERE student_id_number = ? OR (full_name = ? AND group_name = ?)', (s_num, s_name, s_grp))
+                st_row = cursor.fetchone()
+                if not st_row:
+                    cursor.execute('''
+                        INSERT INTO students (student_id_number, full_name, direction, course, group_name, created_at)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    ''', (
+                        s_num,
+                        s_name,
+                        sub.get('direction', 'Axborot tizimlari va texnologiyalari'),
+                        sub.get('course', 1),
+                        s_grp,
+                        sub.get('finishedAt', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                    ))
+                    student_db_id = cursor.lastrowid
+                else:
+                    student_db_id = st_row[0]
+
+                cursor.execute('SELECT id FROM exam_sessions WHERE student_id = ?', (student_db_id,))
+                if not cursor.fetchone():
+                    score = int(sub.get('totalScore', 0))
+                    status_text = sub.get('statusText', 'Joriy nazoratdan o‘tdi' if score >= 18 else 'Joriy nazoratdan o‘tmadi')
+                    cursor.execute('''
+                        INSERT INTO exam_sessions (
+                            student_id, subject, started_at, finished_at,
+                            is_completed, total_score, max_score, correct_count,
+                            incorrect_count, status_text, tab_switch_count,
+                            session_questions_json, student_answers_json
+                        ) VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, '[]', '{}')
+                    ''', (
+                        student_db_id,
+                        'Dasturlash',
+                        sub.get('finishedAt', datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
+                        sub.get('finishedAt', datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
+                        score,
+                        30,
+                        sub.get('correctCount', score),
+                        sub.get('incorrectCount', 30 - score),
+                        status_text,
+                        sub.get('tabSwitchCount', 0)
+                    ))
+        except Exception as ex:
+            print("Auto-seed error:", ex)
+
     conn.commit()
     conn.close()
 
