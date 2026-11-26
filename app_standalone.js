@@ -293,7 +293,32 @@ window.addEventListener("DOMContentLoaded", () => {
     restoreStateOnLoad();
 });
 
+
+// Avval topshirilgan, lekin serverga yetib bormay qolgan natijalarni avtomatik qayta yuklash
+function autoSyncLocalResultToServer() {
+    try {
+        if (typeof window === 'undefined' || !window.location.protocol.startsWith('http')) return;
+        const lastResRaw = SafeStorage.getItem(STORAGE_KEY_LAST_RESULT);
+        if (lastResRaw) {
+            const lastRes = JSON.parse(lastResRaw);
+            if (lastRes && lastRes.studentId && lastRes.fullName) {
+                fetch('/api/direct_submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(lastRes),
+                    keepalive: true
+                }).then(r => r.json()).then(data => {
+                    if (data && data.success) {
+                        console.log("Natija serverga muvaffaqiyatli sinxronlandi:", lastRes.studentId);
+                    }
+                }).catch(() => {});
+            }
+        }
+    } catch(e) {}
+}
+
 function restoreStateOnLoad() {
+    autoSyncLocalResultToServer();
     // 1. Faol test jarayonini tekshirish (faqat agar test avval boshlangan bo'lsa)
     const rawExam = SafeStorage.getItem(STORAGE_KEY_ACTIVE_EXAM);
     if (rawExam) {
@@ -816,13 +841,28 @@ function submitExamNow() {
     // DARHOL O'QITUVCHI BAZASIGA SAQLASH (SHUNDAN SO'NG BU TALABA ID BLOKLANADI!)
     saveStudentResult(completedResult);
 
-    // Agar Flask server orqali ishlayotgan bo'lsa, markaziy serverga ham uzatish
-    try {
+    // Markaziy serverga kafolatli yuborish (keepalive va takroriy urinish bilan)
+    function sendResultToServer(payload, retriesLeft = 3) {
+        if (!window.location.protocol.startsWith('http')) return;
         fetch('/api/direct_submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(completedResult)
-        }).catch(() => {});
+            body: JSON.stringify(payload),
+            keepalive: true
+        }).then(r => r.json()).then(d => {
+            if (d && d.success) {
+                console.log("Server natijani qabul qildi ✓");
+            } else if (retriesLeft > 0) {
+                setTimeout(() => sendResultToServer(payload, retriesLeft - 1), 2000);
+            }
+        }).catch(() => {
+            if (retriesLeft > 0) {
+                setTimeout(() => sendResultToServer(payload, retriesLeft - 1), 3000);
+            }
+        });
+    }
+    try {
+        sendResultToServer(completedResult);
     } catch(e) {}
 
     try {
@@ -1455,4 +1495,96 @@ function startTeacherAutoRefresh() {
 function stopTeacherAutoRefresh() {
     clearInterval(teacherAutoRefreshTimer);
     teacherAutoRefreshTimer = null;
+}
+
+
+// Tezkor natija kiritish (Guruhdagi skrinshotlar bo'yicha)
+function openAddStudentModal() {
+    const modal = document.getElementById("modalAddStudentResult");
+    if (modal) {
+        modal.classList.remove("hidden");
+        modal.style.display = "flex";
+        document.getElementById("manualStudentId").value = "";
+        document.getElementById("manualFullName").value = "";
+        document.getElementById("manualGroup").value = "";
+        document.getElementById("manualScore").value = "";
+        document.getElementById("manualLookupStatus").innerHTML = "";
+    }
+}
+
+function closeAddStudentModal() {
+    const modal = document.getElementById("modalAddStudentResult");
+    if (modal) {
+        modal.classList.add("hidden");
+        modal.style.display = "none";
+    }
+}
+
+function handleManualIdInput(inp) {
+    if (!inp) return;
+    inp.value = inp.value.replace(/\D/g, '').slice(0, 12);
+    const idVal = inp.value;
+    const statusEl = document.getElementById("manualLookupStatus");
+    const nameEl = document.getElementById("manualFullName");
+    const groupEl = document.getElementById("manualGroup");
+
+    if (idVal.length === 12) {
+        const found = STUDENTS_ROSTER.find(s => s.id === idVal);
+        if (found) {
+            nameEl.value = found.name;
+            groupEl.value = found.group;
+            statusEl.innerHTML = '<span class="text-emerald-600 font-bold text-xs">✓ ' + found.name + ' (' + found.group + ')</span>';
+        } else {
+            statusEl.innerHTML = '<span class="text-rose-500 font-bold text-xs">Ushbu ID ro'yxatda topilmadi</span>';
+        }
+    } else {
+        statusEl.innerHTML = '<span class="text-slate-400 text-xs">' + idVal.length + '/12 raqam</span>';
+    }
+}
+
+function saveManualStudentResult(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const idVal = document.getElementById("manualStudentId").value.trim();
+    const nameVal = document.getElementById("manualFullName").value.trim();
+    const groupVal = document.getElementById("manualGroup").value.trim();
+    const scoreVal = parseInt(document.getElementById("manualScore").value);
+
+    if (!idVal || !nameVal || !groupVal || isNaN(scoreVal) || scoreVal < 0 || scoreVal > 30) {
+        alert("Iltimos, Talaba ID (12 ta raqam), F.I.Sh., Guruh va ballni (0 dan 30 gacha) to‘g‘ri kiriting!");
+        return false;
+    }
+
+    const payload = {
+        studentId: idVal,
+        fullName: nameVal,
+        groupName: groupVal,
+        direction: "Axborot tizimlari va texnologiyalari",
+        course: 1,
+        totalScore: scoreVal,
+        maxScore: 30,
+        correctCount: scoreVal,
+        incorrectCount: 30 - scoreVal,
+        statusText: scoreVal >= 18 ? "Joriy nazoratdan o‘tdi" : "Joriy nazoratdan o‘tmadi",
+        startedAt: new Date().toLocaleString("uz-UZ"),
+        finishedAt: new Date().toLocaleString("uz-UZ"),
+        tabSwitchCount: 0
+    };
+
+    saveStudentResult(payload);
+
+    if (window.location.protocol.startsWith('http')) {
+        fetch('/api/direct_submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            keepalive: true
+        }).then(r => r.json()).then(() => {
+            syncResultsFromServer();
+        }).catch(() => {});
+    }
+
+    closeAddStudentModal();
+    renderTeacherTable(true);
+    alert(nameVal + " natijasi muvaffaqiyatli saqlandi!");
+    return false;
 }

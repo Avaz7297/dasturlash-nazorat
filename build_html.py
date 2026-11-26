@@ -582,6 +582,10 @@ html_template = f"""<!DOCTYPE html>
                             <i class="fa-solid fa-clock-rotate-left text-amber-500"></i>
                             <span>Audit Jurnali</span>
                         </button>
+                        <button onclick="openAddStudentModal()" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-2 shadow-sm" title="Guruhdagi skrinshotlar bo'yicha tezkor kiritish">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>+ Natija Kiritish (Guruhdan)</span>
+                        </button>
                         <button onclick="exportToExcel()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-2 shadow-sm">
                             <i class="fa-solid fa-file-excel"></i>
                             <span>Excel (.xlsx / CSV) Yuklab Olish</span>
@@ -686,7 +690,56 @@ html_template = f"""<!DOCTYPE html>
                 </div>
             </div>
         </section>
-    </main>
+    
+    <!-- TEZKOR NATIJA KIRITISH MODALI (Guruhdagi skrinshotlar bo'yicha) -->
+    <div id="modalAddStudentResult" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-900 text-lg">Natija Kiritish</h3>
+                        <p class="text-xs text-slate-500">Guruhdagi skrinshot bo‘yicha talaba ballini qo‘shish</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAddStudentModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="return saveManualStudentResult(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Talaba 12 xonali ID <span class="text-red-500">*</span></label>
+                    <input type="text" id="manualStudentId" required maxlength="12" oninput="handleManualIdInput(this)" placeholder="Masalan: 315261102911" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-mono font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                    <div id="manualLookupStatus" class="mt-1"></div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">F.I.Sh. <span class="text-red-500">*</span></label>
+                    <input type="text" id="manualFullName" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Guruh <span class="text-red-500">*</span></label>
+                    <input type="text" id="manualGroup" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">To‘plangan Ball (0 dan 30 gacha) <span class="text-red-500">*</span></label>
+                    <input type="number" id="manualScore" required min="0" max="30" placeholder="Masalan: 26" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-bold text-blue-700 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="closeAddStudentModal()" class="w-1/2 py-3 rounded-xl border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors">Bekor Qilish</button>
+                    <button type="submit" class="w-1/2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition-all">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</main>
 
     <!-- Modallar -->
     <div id="modalViolation" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4" style="display: none;">

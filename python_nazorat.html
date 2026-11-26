@@ -567,6 +567,10 @@
                             <i class="fa-solid fa-clock-rotate-left text-amber-500"></i>
                             <span>Audit Jurnali</span>
                         </button>
+                        <button onclick="openAddStudentModal()" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs flex items-center gap-2 shadow-sm" title="Guruhdagi skrinshotlar bo'yicha tezkor kiritish">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>+ Natija Kiritish (Guruhdan)</span>
+                        </button>
                         <button onclick="exportToExcel()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-2 shadow-sm">
                             <i class="fa-solid fa-file-excel"></i>
                             <span>Excel (.xlsx / CSV) Yuklab Olish</span>
@@ -671,7 +675,56 @@
                 </div>
             </div>
         </section>
-    </main>
+    
+    <!-- TEZKOR NATIJA KIRITISH MODALI (Guruhdagi skrinshotlar bo'yicha) -->
+    <div id="modalAddStudentResult" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-900 text-lg">Natija Kiritish</h3>
+                        <p class="text-xs text-slate-500">Guruhdagi skrinshot bo‘yicha talaba ballini qo‘shish</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeAddStudentModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form onsubmit="return saveManualStudentResult(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Talaba 12 xonali ID <span class="text-red-500">*</span></label>
+                    <input type="text" id="manualStudentId" required maxlength="12" oninput="handleManualIdInput(this)" placeholder="Masalan: 315261102911" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-mono font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                    <div id="manualLookupStatus" class="mt-1"></div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">F.I.Sh. <span class="text-red-500">*</span></label>
+                    <input type="text" id="manualFullName" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Guruh <span class="text-red-500">*</span></label>
+                    <input type="text" id="manualGroup" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">To‘plangan Ball (0 dan 30 gacha) <span class="text-red-500">*</span></label>
+                    <input type="number" id="manualScore" required min="0" max="30" placeholder="Masalan: 26" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-sm font-bold text-blue-700 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="closeAddStudentModal()" class="w-1/2 py-3 rounded-xl border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors">Bekor Qilish</button>
+                    <button type="submit" class="w-1/2 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 transition-all">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</main>
 
     <!-- Modallar -->
     <div id="modalViolation" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden p-4" style="display: none;">
@@ -1122,7 +1175,32 @@ window.addEventListener("DOMContentLoaded", () => {
     restoreStateOnLoad();
 });
 
+
+// Avval topshirilgan, lekin serverga yetib bormay qolgan natijalarni avtomatik qayta yuklash
+function autoSyncLocalResultToServer() {
+    try {
+        if (typeof window === 'undefined' || !window.location.protocol.startsWith('http')) return;
+        const lastResRaw = SafeStorage.getItem(STORAGE_KEY_LAST_RESULT);
+        if (lastResRaw) {
+            const lastRes = JSON.parse(lastResRaw);
+            if (lastRes && lastRes.studentId && lastRes.fullName) {
+                fetch('/api/direct_submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(lastRes),
+                    keepalive: true
+                }).then(r => r.json()).then(data => {
+                    if (data && data.success) {
+                        console.log("Natija serverga muvaffaqiyatli sinxronlandi:", lastRes.studentId);
+                    }
+                }).catch(() => {});
+            }
+        }
+    } catch(e) {}
+}
+
 function restoreStateOnLoad() {
+    autoSyncLocalResultToServer();
     // 1. Faol test jarayonini tekshirish (faqat agar test avval boshlangan bo'lsa)
     const rawExam = SafeStorage.getItem(STORAGE_KEY_ACTIVE_EXAM);
     if (rawExam) {
@@ -1645,13 +1723,28 @@ function submitExamNow() {
     // DARHOL O'QITUVCHI BAZASIGA SAQLASH (SHUNDAN SO'NG BU TALABA ID BLOKLANADI!)
     saveStudentResult(completedResult);
 
-    // Agar Flask server orqali ishlayotgan bo'lsa, markaziy serverga ham uzatish
-    try {
+    // Markaziy serverga kafolatli yuborish (keepalive va takroriy urinish bilan)
+    function sendResultToServer(payload, retriesLeft = 3) {
+        if (!window.location.protocol.startsWith('http')) return;
         fetch('/api/direct_submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(completedResult)
-        }).catch(() => {});
+            body: JSON.stringify(payload),
+            keepalive: true
+        }).then(r => r.json()).then(d => {
+            if (d && d.success) {
+                console.log("Server natijani qabul qildi ✓");
+            } else if (retriesLeft > 0) {
+                setTimeout(() => sendResultToServer(payload, retriesLeft - 1), 2000);
+            }
+        }).catch(() => {
+            if (retriesLeft > 0) {
+                setTimeout(() => sendResultToServer(payload, retriesLeft - 1), 3000);
+            }
+        });
+    }
+    try {
+        sendResultToServer(completedResult);
     } catch(e) {}
 
     try {
@@ -2284,6 +2377,98 @@ function startTeacherAutoRefresh() {
 function stopTeacherAutoRefresh() {
     clearInterval(teacherAutoRefreshTimer);
     teacherAutoRefreshTimer = null;
+}
+
+
+// Tezkor natija kiritish (Guruhdagi skrinshotlar bo'yicha)
+function openAddStudentModal() {
+    const modal = document.getElementById("modalAddStudentResult");
+    if (modal) {
+        modal.classList.remove("hidden");
+        modal.style.display = "flex";
+        document.getElementById("manualStudentId").value = "";
+        document.getElementById("manualFullName").value = "";
+        document.getElementById("manualGroup").value = "";
+        document.getElementById("manualScore").value = "";
+        document.getElementById("manualLookupStatus").innerHTML = "";
+    }
+}
+
+function closeAddStudentModal() {
+    const modal = document.getElementById("modalAddStudentResult");
+    if (modal) {
+        modal.classList.add("hidden");
+        modal.style.display = "none";
+    }
+}
+
+function handleManualIdInput(inp) {
+    if (!inp) return;
+    inp.value = inp.value.replace(/\D/g, '').slice(0, 12);
+    const idVal = inp.value;
+    const statusEl = document.getElementById("manualLookupStatus");
+    const nameEl = document.getElementById("manualFullName");
+    const groupEl = document.getElementById("manualGroup");
+
+    if (idVal.length === 12) {
+        const found = STUDENTS_ROSTER.find(s => s.id === idVal);
+        if (found) {
+            nameEl.value = found.name;
+            groupEl.value = found.group;
+            statusEl.innerHTML = '<span class="text-emerald-600 font-bold text-xs">✓ ' + found.name + ' (' + found.group + ')</span>';
+        } else {
+            statusEl.innerHTML = '<span class="text-rose-500 font-bold text-xs">Ushbu ID ro'yxatda topilmadi</span>';
+        }
+    } else {
+        statusEl.innerHTML = '<span class="text-slate-400 text-xs">' + idVal.length + '/12 raqam</span>';
+    }
+}
+
+function saveManualStudentResult(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const idVal = document.getElementById("manualStudentId").value.trim();
+    const nameVal = document.getElementById("manualFullName").value.trim();
+    const groupVal = document.getElementById("manualGroup").value.trim();
+    const scoreVal = parseInt(document.getElementById("manualScore").value);
+
+    if (!idVal || !nameVal || !groupVal || isNaN(scoreVal) || scoreVal < 0 || scoreVal > 30) {
+        alert("Iltimos, Talaba ID (12 ta raqam), F.I.Sh., Guruh va ballni (0 dan 30 gacha) to‘g‘ri kiriting!");
+        return false;
+    }
+
+    const payload = {
+        studentId: idVal,
+        fullName: nameVal,
+        groupName: groupVal,
+        direction: "Axborot tizimlari va texnologiyalari",
+        course: 1,
+        totalScore: scoreVal,
+        maxScore: 30,
+        correctCount: scoreVal,
+        incorrectCount: 30 - scoreVal,
+        statusText: scoreVal >= 18 ? "Joriy nazoratdan o‘tdi" : "Joriy nazoratdan o‘tmadi",
+        startedAt: new Date().toLocaleString("uz-UZ"),
+        finishedAt: new Date().toLocaleString("uz-UZ"),
+        tabSwitchCount: 0
+    };
+
+    saveStudentResult(payload);
+
+    if (window.location.protocol.startsWith('http')) {
+        fetch('/api/direct_submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            keepalive: true
+        }).then(r => r.json()).then(() => {
+            syncResultsFromServer();
+        }).catch(() => {});
+    }
+
+    closeAddStudentModal();
+    renderTeacherTable(true);
+    alert(nameVal + " natijasi muvaffaqiyatli saqlandi!");
+    return false;
 }
 
     </script>
