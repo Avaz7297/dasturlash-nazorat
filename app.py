@@ -25,6 +25,12 @@ from questions_data import QUESTIONS, SAMPLE_DISTRIBUTION
 from export_utils import generate_excel_report, generate_pdf_report, generate_vedomost_excel, generate_vedomost_pdf
 
 app = Flask(__name__)
+# =========================================================================
+# TEST TIZIMI CHEKLOV REJIMI (EXAM LOCKDOWN)
+# =========================================================================
+EXAM_SYSTEM_LOCKED = True
+EXAM_LOCKED_MESSAGE = "Dasturlash fanidan masofaviy joriy nazorat sinovi yakunlangan! Test topshirish vaqti tugagan."
+
 app.secret_key = 'super_secret_python_exam_key_2026_secured'
 
 # Bazani ishga tushirish
@@ -83,6 +89,9 @@ def index():
 
 @app.route('/start_exam', methods=['POST'])
 def start_exam():
+    if EXAM_SYSTEM_LOCKED:
+        flash(EXAM_LOCKED_MESSAGE, 'danger')
+        return redirect(url_for('index'))
     student_id_number = request.form.get('student_id_number', '').strip()
     full_name = request.form.get('full_name', '').strip()
     direction = request.form.get('direction', '').strip() or "Axborot-kommunikatsiya texnologiyalari"
@@ -118,6 +127,9 @@ def start_exam():
 
 @app.route('/exam')
 def exam_room():
+    if EXAM_SYSTEM_LOCKED:
+        flash(EXAM_LOCKED_MESSAGE, 'warning')
+        return redirect(url_for('index'))
     session_id = session.get('student_session_id')
     if not session_id:
         flash("Iltimos, avval ro'yxatdan o'ting!", "danger")
@@ -170,6 +182,8 @@ def exam_room():
 
 @app.route('/api/save_progress', methods=['POST'])
 def save_progress():
+    if EXAM_SYSTEM_LOCKED:
+        return jsonify({'status': 'error', 'message': EXAM_LOCKED_MESSAGE}), 403
     """Talaba test ishlayotganda oraliq javoblarni va qoidabuzarliklarni avtomatik saqlash"""
     data = request.get_json() or {}
     session_id = data.get('session_id')
@@ -184,6 +198,8 @@ def save_progress():
 
 @app.route('/api/submit_exam', methods=['POST'])
 def submit_exam():
+    if EXAM_SYSTEM_LOCKED:
+        return jsonify({'status': 'error', 'message': EXAM_LOCKED_MESSAGE}), 403
     """Testni serverda to'liq tekshirish va baholash"""
     data = request.get_json() or {}
     session_id = data.get('session_id')

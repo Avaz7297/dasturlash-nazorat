@@ -1,3 +1,7 @@
+// EXAM SYSTEM LOCKDOWN STATUS
+const EXAM_SYSTEM_CLOSED = true;
+const EXAM_CLOSED_MSG = "Dasturlash fanidan masofaviy joriy nazorat sinovi yakunlandi! Test topshirish vaqti tugagan.";
+
 // app_standalone.js - Masofaviy Joriy Nazorat Mustaqil Skripti
 // Rasmiy 130 ta talaba (9mt-26, 10mt-26, 11mt-26, 12mt-26, 13mt-26, 14mt-26) va Sinov Talabasi
 
@@ -127,7 +131,7 @@ function switchView(viewName) {
     const secRes = document.getElementById("sectionResult");
     const secTeach = document.getElementById("sectionTeacher");
 
-    const all = [secReg, secReady, secExam, secRes, secTeach];
+    const all = [secClosed, secReg, secReady, secExam, secRes, secTeach];
     all.forEach(sec => {
         if (sec) {
             sec.classList.add("hidden");
@@ -135,12 +139,20 @@ function switchView(viewName) {
         }
     });
 
+    const secClosed = document.getElementById("sectionClosed");
     let target = null;
-    if (viewName === "register") target = secReg;
-    else if (viewName === "ready") target = secReady;
-    else if (viewName === "exam") target = secExam;
-    else if (viewName === "result") target = secRes;
-    else if (viewName === "teacher") target = secTeach;
+    if (viewName === "teacher") {
+        target = secTeach;
+    } else if (viewName === "result") {
+        target = secRes;
+    } else if (EXAM_SYSTEM_CLOSED) {
+        target = secClosed || secReg;
+    } else {
+        if (viewName === "register") target = secReg;
+        else if (viewName === "ready") target = secReady;
+        else if (viewName === "exam") target = secExam;
+        else if (viewName === "closed") target = secClosed;
+    }
 
     if (target) {
         target.classList.remove("hidden");
@@ -319,6 +331,28 @@ function autoSyncLocalResultToServer() {
 
 function restoreStateOnLoad() {
     autoSyncLocalResultToServer();
+    if (EXAM_SYSTEM_CLOSED) {
+        const activeView = SafeStorage.getItem(STORAGE_KEY_ACTIVE_VIEW);
+        if (activeView === "teacher") {
+            toggleTeacherSection();
+            return;
+        }
+        if (activeView === "result") {
+            const rawExam = SafeStorage.getItem(STORAGE_KEY_ACTIVE_EXAM);
+            if (rawExam) {
+                try {
+                    const session = JSON.parse(rawExam);
+                    if (session && session.student && session.isCompleted) {
+                        currentStudent = session.student;
+                        displayResultView(session);
+                        return;
+                    }
+                } catch(e) {}
+            }
+        }
+        switchView("closed");
+        return;
+    }
     // 1. Faol test jarayonini tekshirish (faqat agar test avval boshlangan bo‘lsa)
     const rawExam = SafeStorage.getItem(STORAGE_KEY_ACTIVE_EXAM);
     if (rawExam) {
@@ -550,6 +584,11 @@ function handleRegisterSubmit(e) {
 // =========================================================================
 
 function startExamActual() {
+    if (EXAM_SYSTEM_CLOSED) {
+        alert(EXAM_CLOSED_MSG);
+        switchView("closed");
+        return;
+    }
     if (!pendingStudent) {
         switchView("register");
         return;
@@ -1769,4 +1808,30 @@ function exportVedomostExcel(targetGroup) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+// Tezkor natija tekshirish (HEMIS ID bo'yicha)
+function showQuickLookupModal() {
+    const id = prompt("Iltimos, 12 xonali Talaba ID (HEMIS ID) ni kiriting:");
+    if (!id || !id.trim()) return;
+    const cleanId = id.trim().replace(/\D/g, '');
+    if (cleanId.length < 5) {
+        alert("Noto'g'ri ID kiritildi!");
+        return;
+    }
+    
+    // Serverdan yoki ro'yxatdan tekshirish
+    fetch('/api/check_student_status?id=' + encodeURIComponent(cleanId))
+        .then(r => r.json())
+        .then(data => {
+            if (data && data.tested && data.session) {
+                const s = data.session;
+                alert("TALABA NATIJASI:\n\nF.I.Sh: " + (s.fullName || s.full_name || "-") + "\nGuruh: " + (s.groupName || s.group_name || "-") + "\nTo'plangan ball: " + (s.totalScore ?? s.total_score ?? "-") + " / 30\nHolat: " + (s.statusText || s.status_text || "-") + "\nTopshirilgan vaqt: " + (s.finishedAt || s.finished_at || "-"));
+            } else {
+                alert("Kiritilgan ID (" + cleanId + ") bo'yicha topshirilgan test natijasi topilmadi yoki test topshirilmagan.");
+            }
+        })
+        .catch(err => {
+            alert("Natijani tekshirishda xatolik yuz berdi. Internet aloqasini tekshiring.");
+        });
 }

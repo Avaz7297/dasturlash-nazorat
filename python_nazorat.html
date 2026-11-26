@@ -77,6 +77,41 @@
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
         <!-- 1-SAHIFA: Talaba Kirishi -->
+        
+        <!-- 0-SAHIFA: TEST YAKUNLANDI (CHEKLOV REJIMI) -->
+        <section id="sectionClosed" class="max-w-2xl mx-auto py-8">
+            <div class="bg-white rounded-2xl shadow-xl border border-rose-100 overflow-hidden text-center p-6 sm:p-10">
+                <div class="w-20 h-20 bg-rose-50 border-2 border-rose-200 rounded-full flex items-center justify-center mx-auto mb-5 text-rose-600 shadow-inner">
+                    <i class="fa-solid fa-clock-rotate-left text-3xl"></i>
+                </div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-bold uppercase tracking-wider mb-3">
+                    <i class="fa-solid fa-lock"></i> Qabul Yakunlandi
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3 tracking-tight">
+                    Test topshirish vaqti tugagan!
+                </h2>
+                <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-6 max-w-lg mx-auto">
+                    Dasturlash fanidan masofaviy joriy nazorat sinovi reglament bo‘yicha <strong>25–26-noyabr kunlari</strong> o‘tkazildi. Belgilangan muddat yakunlanganligi sababli test topshirish to‘xtatildi.
+                </p>
+                <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-left max-w-md mx-auto mb-6">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-circle-check text-emerald-600 text-lg mt-0.5"></i>
+                        <div class="text-xs sm:text-sm text-emerald-900">
+                            <strong>Barcha natijalar saqlangan:</strong> Test topshirgan barcha talabalarning natijalari o‘qituvchi elektron vedomostida to‘liq va xavfsiz qayd etilgan.
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-2 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button onclick="toggleTeacherSection()" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-user-tie"></i> O‘qituvchi Paneli
+                    </button>
+                    <button onclick="showQuickLookupModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass"></i> O‘z natijamni tekshirish
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <section id="sectionRegister" class="max-w-4xl mx-auto">
             <div class="text-center mb-8">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold mb-3">
