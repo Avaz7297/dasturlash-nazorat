@@ -22,7 +22,7 @@ from database import (
     get_student_exam_detail
 )
 from questions_data import QUESTIONS, SAMPLE_DISTRIBUTION
-from export_utils import generate_excel_report, generate_pdf_report
+from export_utils import generate_excel_report, generate_pdf_report, generate_vedomost_excel, generate_vedomost_pdf
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_python_exam_key_2026_secured'
@@ -311,6 +311,41 @@ def export_pdf():
 
     pdf_data = generate_pdf_report(results)
     filename = f"Joriy_nazorat_natijalari_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf"
+    return Response(
+        pdf_data,
+        mimetype="application/pdf",
+        headers={"Content-Disposition": f"attachment;filename={filename}"}
+    )
+
+
+@app.route('/teacher/export/vedomost/excel')
+@teacher_required
+def export_vedomost_excel():
+    search_query = request.args.get('search', '').strip()
+    group_filter = request.args.get('group', '').strip()
+    results = get_all_results_for_teacher(search_query, group_filter)
+    grp_title = group_filter if group_filter else "Barcha guruhlar"
+    
+    excel_data = generate_vedomost_excel(results, grp_title)
+    clean_grp = grp_title.replace(' ', '_').replace('/', '_').replace("'", "")
+    filename = f"Vedomost_Dasturlash_{clean_grp}_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx"
+    return Response(
+        excel_data,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment;filename={filename}"}
+    )
+
+@app.route('/teacher/export/vedomost/pdf')
+@teacher_required
+def export_vedomost_pdf():
+    search_query = request.args.get('search', '').strip()
+    group_filter = request.args.get('group', '').strip()
+    results = get_all_results_for_teacher(search_query, group_filter)
+    grp_title = group_filter if group_filter else "Barcha guruhlar"
+
+    pdf_data = generate_vedomost_pdf(results, grp_title)
+    clean_grp = grp_title.replace(' ', '_').replace('/', '_').replace("'", "")
+    filename = f"Vedomost_Dasturlash_{clean_grp}_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf"
     return Response(
         pdf_data,
         mimetype="application/pdf",

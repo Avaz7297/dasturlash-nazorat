@@ -586,13 +586,17 @@ html_template = f"""<!DOCTYPE html>
                             <i class="fa-solid fa-plus"></i>
                             <span>+ Natija Kiritish (Guruhdan)</span>
                         </button>
-                        <button onclick="exportToExcel()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-2 shadow-sm">
-                            <i class="fa-solid fa-file-excel"></i>
-                            <span>Excel (.xlsx / CSV) Yuklab Olish</span>
+                        <button onclick="openVedomostModal()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs flex items-center gap-2 shadow-sm" title="Har bir guruh vedomostini PDF yoki Chop etish ko‘rinishida shakllantirish">
+                            <i class="fa-solid fa-file-invoice"></i>
+                            <span>Guruh Vedomosti (PDF)</span>
                         </button>
-                        <button onclick="window.print()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs flex items-center gap-2 shadow-sm">
-                            <i class="fa-solid fa-print"></i>
-                            <span>Vedomostni Chop Etish</span>
+                        <button onclick="exportVedomostExcel()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-2 shadow-sm" title="Har bir guruh vedomostini jadval ko‘rinishida Excel (.xlsx / CSV) formatida saqlash">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Guruh Vedomosti (Excel)</span>
+                        </button>
+                        <button onclick="exportToExcel()" class="px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs flex items-center gap-2 shadow-sm" title="Barcha guruhlar natijalarini to‘liq yuklab olish">
+                            <i class="fa-solid fa-table"></i>
+                            <span>Barcha Natijalar (Excel)</span>
                         </button>
                         <button onclick="clearAllResults()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-rose-100 text-rose-700 font-semibold text-xs flex items-center gap-1.5 shadow-sm" title="Barcha natijalarni tozalash">
                             <i class="fa-solid fa-trash"></i>
@@ -897,6 +901,104 @@ html_template = f"""<!DOCTYPE html>
         const ALL_QUESTIONS = {questions_json};
 {app_js_code}
     </script>
+
+    <!-- GURUH VEDOMOSTI MODAL (PDF / EXCEL / CHOP ETISH) -->
+    <div id="vedomostModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col my-auto max-h-[92vh]">
+            
+            <!-- Modal Toolbar (no-print) -->
+            <div class="px-5 py-4 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3 no-print">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white shrink-0">
+                        <i class="fa-solid fa-file-invoice text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm sm:text-base leading-tight">Dasturlash fanidan joriy nazorat jadvali (Vedomost)</h3>
+                        <p class="text-xs text-slate-400">Har bir guruh vedomostini PDF yoki Excel formatida saqlash</p>
+                    </div>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Guruh tanlash -->
+                    <select id="vedomostGroupSelect" onchange="updateVedomostModalView()" class="bg-slate-800 text-white border border-slate-700 text-xs rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                        <option value="9mt-26 ATT (o'z)">9mt-26 ATT (o'z)</option>
+                        <option value="10mt-26 ATT (o'z)">10mt-26 ATT (o'z)</option>
+                        <option value="11mt-26 ATT (o'z)">11mt-26 ATT (o'z)</option>
+                        <option value="12mt-26 ATT (o'z)">12mt-26 ATT (o'z)</option>
+                        <option value="13mt-26 ATT (o'z)">13mt-26 ATT (o'z)</option>
+                        <option value="14mt-26 ATT (o'z)">14mt-26 ATT (o'z)</option>
+                        <option value="">Barcha guruhlar</option>
+                    </select>
+
+                    <!-- PDF / Print tugmasi -->
+                    <button onclick="printVedomostDoc()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm" title="Vedomostni PDF sifatida saqlash yoki printerda chop etish">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>PDF / Chop etish</span>
+                    </button>
+
+                    <!-- Excel tugmasi -->
+                    <button onclick="downloadVedomostExcelFromModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm" title="Shu guruh vedomostini Excel (.csv / .xlsx) formatida yuklab olish">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>Excel Yuklab Olish</span>
+                    </button>
+
+                    <!-- Yopish -->
+                    <button onclick="closeVedomostModal()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors" title="Yopish">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Printable Document Body -->
+            <div id="vedomostPrintArea" class="p-6 sm:p-8 bg-white overflow-y-auto flex-1 text-slate-800">
+                <!-- Vedomost Header -->
+                <div class="text-center pb-4 mb-4 border-b-2 border-slate-900">
+                    <h2 class="text-base sm:text-lg font-bold uppercase tracking-tight text-slate-900">DASTURLASH FANIDAN JORIY NAZORAT JADVALI (VEDOMOST)</h2>
+                    <div class="flex flex-wrap justify-center items-center gap-3 mt-2 text-xs font-medium text-slate-600">
+                        <span><b>Guruh:</b> <span id="vDocGroup" class="text-blue-700 font-bold">-</span></span>
+                        <span>•</span>
+                        <span><b>Fan:</b> Dasturlash fani</span>
+                        <span>•</span>
+                        <span><b>Semestr:</b> 1-semestr (2026-2027)</span>
+                        <span>•</span>
+                        <span><b>Maksimal ball:</b> 30 ball</span>
+                        <span>•</span>
+                        <span><b>Sana:</b> <span id="vDocDate">-</span></span>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse border border-slate-300 text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-900 border-b border-slate-300">
+                                <th class="py-2.5 px-3 text-center border border-slate-300 w-12 font-bold">№</th>
+                                <th class="py-2.5 px-3 text-center border border-slate-300 w-36 font-bold">Talaba ID</th>
+                                <th class="py-2.5 px-3 border border-slate-300 font-bold">F.I.O. (Familiya, Ismi, Otasining ismi)</th>
+                                <th class="py-2.5 px-3 text-center border border-slate-300 w-32 font-bold">Guruh</th>
+                                <th class="py-2.5 px-3 text-center border border-slate-300 w-32 font-bold">Joriy nazorat bali</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vedomostTableBody">
+                            <!-- Rows injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Vedomost Footer with Signatures -->
+                <div class="mt-8 pt-6 border-t border-slate-300 flex justify-between items-center text-xs font-semibold text-slate-700">
+                    <div>
+                        <span>O‘qituvchi: _______________________________ (imzo)</span>
+                    </div>
+                    <div>
+                        <span>Sana: <span id="vDocSignDate">-</span></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 </body>
 </html>
 """

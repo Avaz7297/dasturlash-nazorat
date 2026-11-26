@@ -1588,3 +1588,185 @@ function saveManualStudentResult(e) {
     alert(nameVal + " natijasi muvaffaqiyatli saqlandi!");
     return false;
 }
+
+// =========================================================================
+// 5. GURUH VEDOMOSTI (PDF, EXCEL, CHOP ETISH)
+// =========================================================================
+
+function openVedomostModal(preselectGroup) {
+    const modal = document.getElementById("vedomostModal");
+    if (!modal) return;
+
+    const currentFilter = document.getElementById("teachGroupFilter") ? document.getElementById("teachGroupFilter").value.trim() : "";
+    const groupSelect = document.getElementById("vedomostGroupSelect");
+    if (groupSelect) {
+        if (preselectGroup) {
+            groupSelect.value = preselectGroup;
+        } else if (currentFilter) {
+            groupSelect.value = currentFilter;
+        } else {
+            groupSelect.value = "9mt-26 ATT (o'z)";
+        }
+    }
+
+    updateVedomostModalView();
+    modal.classList.remove("hidden");
+    modal.style.display = "flex";
+}
+
+function closeVedomostModal() {
+    const modal = document.getElementById("vedomostModal");
+    if (modal) {
+        modal.classList.add("hidden");
+        modal.style.display = "none";
+    }
+}
+
+function normalizeGroupStr(g) {
+    if (!g) return "";
+    return String(g).toLowerCase().replace(/[‘`’']/g, "'").replace(/\s+/g, " ").trim();
+}
+
+function getVedomostDataForGroup(groupName) {
+    const stored = getStoredStudents();
+    const studentMap = {};
+    stored.forEach(function(s) {
+        if (s.studentId) studentMap[String(s.studentId).trim()] = s;
+        if (s.fullName) studentMap[s.fullName.toUpperCase().trim()] = s;
+    });
+
+    const normTarget = normalizeGroupStr(groupName);
+    let list = [];
+
+    if (normTarget && typeof STUDENTS_ROSTER !== "undefined") {
+        const groupRoster = STUDENTS_ROSTER.filter(function(r) {
+            const normR = normalizeGroupStr(r.group);
+            return normR === normTarget || normR.startsWith(normTarget) || normTarget.startsWith(normR);
+        });
+        if (groupRoster.length > 0) {
+            groupRoster.forEach(function(r) {
+                const sub = studentMap[String(r.id).trim()] || studentMap[r.name.toUpperCase().trim()] || null;
+                list.push({
+                    id: r.id,
+                    name: r.name,
+                    group: r.group,
+                    score: sub ? sub.totalScore : null,
+                    status: sub ? sub.statusText : "Topshirmagan"
+                });
+            });
+        }
+    }
+
+    if (list.length === 0) {
+        const filteredStored = stored.filter(function(s) {
+            if (!normTarget) return true;
+            const normS = normalizeGroupStr(s.groupName);
+            return normS === normTarget || normS.startsWith(normTarget) || normTarget.startsWith(normS);
+        });
+        filteredStored.forEach(function(s) {
+            list.push({
+                id: s.studentId || "-",
+                name: s.fullName,
+                group: s.groupName,
+                score: s.totalScore,
+                status: s.statusText
+            });
+        });
+    }
+
+    // Sort alphabetically by full name
+    list.sort(function(a, b) {
+        return a.name.localeCompare(b.name);
+    });
+    return list;
+}
+
+function updateVedomostModalView() {
+    const groupSelect = document.getElementById("vedomostGroupSelect");
+    const selectedGroup = groupSelect ? groupSelect.value.trim() : "";
+    const grpTitle = selectedGroup || "Barcha guruhlar";
+
+    const docGroupElem = document.getElementById("vDocGroup");
+    if (docGroupElem) docGroupElem.textContent = grpTitle;
+
+    const todayStr = new Date().toLocaleDateString("uz-UZ");
+    const docDateElem = document.getElementById("vDocDate");
+    if (docDateElem) docDateElem.textContent = todayStr;
+
+    const docSignDateElem = document.getElementById("vDocSignDate");
+    if (docSignDateElem) docSignDateElem.textContent = todayStr;
+
+    const vedomostData = getVedomostDataForGroup(selectedGroup);
+    const tbody = document.getElementById("vedomostTableBody");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    if (vedomostData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-400">Ushbu guruh bo‘yicha maʼlumot topilmadi.</td></tr>';
+        return;
+    }
+
+    vedomostData.forEach(function(row, idx) {
+        const hasScore = (typeof row.score === "number");
+        const isPass = hasScore && row.score >= 18;
+        const scoreColorClass = hasScore ? (isPass ? "text-emerald-700 font-bold" : "text-rose-700 font-bold") : "text-slate-400 italic";
+        const scoreText = hasScore ? (row.score + " ball") : '<span class="text-slate-400 italic text-[11px]">Topshirmagan</span>';
+
+        const tr = document.createElement("tr");
+        tr.className = (idx % 2 === 1) ? "bg-slate-50/60" : "bg-white";
+        tr.innerHTML = 
+            '<td class="py-2 px-3 text-center border border-slate-300 font-semibold text-slate-500">' + (idx + 1) + '</td>' +
+            '<td class="py-2 px-3 text-center border border-slate-300 font-mono font-bold text-slate-800">' + escapeHtml(row.id) + '</td>' +
+            '<td class="py-2 px-3 border border-slate-300 font-medium text-slate-900">' + escapeHtml(row.name) + '</td>' +
+            '<td class="py-2 px-3 text-center border border-slate-300 text-slate-700">' + escapeHtml(row.group) + '</td>' +
+            '<td class="py-2 px-3 text-center border border-slate-300 font-mono text-sm ' + scoreColorClass + '">' + scoreText + '</td>';
+        tbody.appendChild(tr);
+    });
+}
+
+function printVedomostDoc() {
+    window.print();
+}
+
+function downloadVedomostExcelFromModal() {
+    const groupSelect = document.getElementById("vedomostGroupSelect");
+    const selectedGroup = groupSelect ? groupSelect.value.trim() : "";
+    exportVedomostExcel(selectedGroup);
+}
+
+function exportVedomostExcel(targetGroup) {
+    const groupFilter = (targetGroup !== undefined) ? targetGroup : (document.getElementById("teachGroupFilter") ? document.getElementById("teachGroupFilter").value.trim() : "");
+    const grpTitle = groupFilter || "Barcha guruhlar";
+
+    const vedomostData = getVedomostDataForGroup(groupFilter);
+    if (vedomostData.length === 0) {
+        alert("Tanlangan guruh bo‘yicha talabalar natijasi topilmadi!");
+        return;
+    }
+
+    const todayStr = new Date().toLocaleDateString("uz-UZ");
+    let csv = "\uFEFF"; // UTF-8 BOM
+    csv += "DASTURLASH FANIDAN JORIY NAZORAT JADVALI (VEDOMOST)\n";
+    csv += "Guruh: " + grpTitle + " | Fan: Dasturlash | Maksimal ball: 30 ball | Sana: " + todayStr + "\n\n";
+    csv += "№;Talaba ID;F.I.O;Guruh;Joriy nazorat bali\n";
+
+    vedomostData.forEach(function(row, idx) {
+        const sc = (typeof row.score === "number") ? (row.score + " ball") : (row.score || "Topshirmagan");
+        csv += '"' + (idx + 1) + '";"' + row.id + '";"' + row.name + '";"' + row.group + '";"' + sc + '"\n';
+    });
+
+    csv += "\n";
+    csv += ';;;"O‘qituvchi: _______________________ (imzo)";"";""\n';
+    csv += ';;;"Sana: ' + todayStr + '";"";""\n';
+
+    const cleanGrp = grpTitle.replace(/[\s\/\']/g, "_");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "Vedomost_Dasturlash_" + cleanGrp + "_" + new Date().toISOString().slice(0, 10) + ".csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
