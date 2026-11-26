@@ -125,6 +125,7 @@ function generateChecksum(str) {
 
 // Sahifalar (View) almashinuvi
 function switchView(viewName) {
+    const secClosed = document.getElementById("sectionClosed");
     const secReg = document.getElementById("sectionRegister");
     const secReady = document.getElementById("sectionReady");
     const secExam = document.getElementById("sectionExam");
@@ -139,7 +140,6 @@ function switchView(viewName) {
         }
     });
 
-    const secClosed = document.getElementById("sectionClosed");
     let target = null;
     if (viewName === "teacher") {
         target = secTeach;
