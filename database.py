@@ -346,8 +346,10 @@ def get_all_results_for_teacher(search_query="", group_filter=""):
         params.extend([term, term, term, term])
 
     if group_filter:
-        query += " AND s.group_name = ?"
-        params.append(group_filter)
+        clean_g = group_filter.strip()
+        prefix = clean_g.split()[0] if clean_g else ""
+        query += " AND (s.group_name = ? OR s.group_name LIKE ? OR s.group_name LIKE ?)"
+        params.extend([clean_g, f"%{clean_g}%", f"%{prefix}%"])
 
     query += " ORDER BY e.id DESC"
 

@@ -606,9 +606,13 @@
                             <i class="fa-solid fa-plus"></i>
                             <span>+ Natija Kiritish (Guruhdan)</span>
                         </button>
-                        <button onclick="openVedomostModal()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs flex items-center gap-2 shadow-sm" title="Har bir guruh vedomostini PDF yoki Chop etish ko‘rinishida shakllantirish">
+                        <button onclick="openVedomostModal()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs flex items-center gap-2 shadow-sm" title="Guruh Vedomosti oynasini ochish">
                             <i class="fa-solid fa-file-invoice"></i>
-                            <span>Guruh Vedomosti (PDF)</span>
+                            <span>Guruh Vedomosti</span>
+                        </button>
+                        <button onclick="downloadVedomostPDF()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs flex items-center gap-2 shadow-sm" title="Tanlangan guruh bo‘yicha PDF vedomostni to‘g‘ridan-to‘g‘ri yuklab olish">
+                            <i class="fa-solid fa-file-arrow-down"></i>
+                            <span>PDF Yuklab Olish</span>
                         </button>
                         <button onclick="exportVedomostExcel()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center gap-2 shadow-sm" title="Har bir guruh vedomostini jadval ko‘rinishida Excel (.xlsx / CSV) formatida saqlash">
                             <i class="fa-solid fa-file-excel"></i>
@@ -2756,6 +2760,48 @@ function showQuickLookupModal() {
         });
 }
 
+// =========================================================================
+// PDF VA EXCEL VEDOMOST YUKLAB OLISH FUNKSIYALARI
+// =========================================================================
+
+function downloadVedomostPDF(targetGroup) {
+    const groupSelect = document.getElementById("vedomostGroupSelect");
+    const teachFilter = document.getElementById("teachGroupFilter");
+    let selectedGroup = "";
+    if (targetGroup !== undefined && targetGroup !== null && targetGroup !== "") {
+        selectedGroup = targetGroup;
+    } else if (groupSelect && groupSelect.value) {
+        selectedGroup = groupSelect.value.trim();
+    } else if (teachFilter && teachFilter.value) {
+        selectedGroup = teachFilter.value.trim();
+    }
+
+    const grpTitle = selectedGroup || "Barcha guruhlar";
+    const cleanGrp = grpTitle.replace(/[\s\/\']/g, "_");
+    const url = '/teacher/export/vedomost/pdf?group=' + encodeURIComponent(selectedGroup);
+
+    // Xabar ko'rsatish
+    const toast = document.createElement("div");
+    toast.className = "fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl z-50 flex items-center gap-2 text-xs border border-slate-700";
+    toast.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-rose-400"></i> <span>' + grpTitle + ' PDF vedomosti yuklab olinmoqda...</span>';
+    document.body.appendChild(toast);
+    setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3000);
+
+    // To'g'ridan-to'g'ri PDF faylni yuklab olish
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "Vedomost_Dasturlash_" + cleanGrp + ".pdf");
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => { if (link.parentNode) link.parentNode.removeChild(link); }, 1000);
+}
+
+function downloadVedomostPDFFromModal() {
+    const groupSelect = document.getElementById("vedomostGroupSelect");
+    const selectedGroup = groupSelect ? groupSelect.value.trim() : "";
+    downloadVedomostPDF(selectedGroup);
+}
+
 </script>
 
     <!-- GURUH VEDOMOSTI MODAL (PDF / EXCEL / CHOP ETISH) -->
@@ -2786,10 +2832,15 @@ function showQuickLookupModal() {
                         <option value="">Barcha guruhlar</option>
                     </select>
 
-                    <!-- PDF / Print tugmasi -->
-                    <button onclick="printVedomostDoc()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm" title="Vedomostni PDF sifatida saqlash yoki printerda chop etish">
-                        <i class="fa-solid fa-file-pdf"></i>
-                        <span>PDF / Chop etish</span>
+                    <!-- PDF yuklab olish tugmasi -->
+                    <button onclick="downloadVedomostPDFFromModal()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm" title="Vedomostni PDF fayl sifatida to‘g‘ridan-to‘g‘ri yuklab olish">
+                        <i class="fa-solid fa-file-arrow-down"></i>
+                        <span>PDF Yuklab Olish (.pdf)</span>
+                    </button>
+                    <!-- Printerda chop etish tugmasi -->
+                    <button onclick="printVedomostDoc()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 border border-slate-700" title="Printerda chop etish">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Chop etish</span>
                     </button>
 
                     <!-- Excel tugmasi -->

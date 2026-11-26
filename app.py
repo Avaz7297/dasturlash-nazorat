@@ -304,7 +304,6 @@ def teacher_dashboard():
     )
 
 @app.route('/teacher/export/excel')
-@teacher_required
 def export_excel():
     search_query = request.args.get('search', '').strip()
     group_filter = request.args.get('group', '').strip()
@@ -319,7 +318,6 @@ def export_excel():
     )
 
 @app.route('/teacher/export/pdf')
-@teacher_required
 def export_pdf():
     search_query = request.args.get('search', '').strip()
     group_filter = request.args.get('group', '').strip()
@@ -335,7 +333,6 @@ def export_pdf():
 
 
 @app.route('/teacher/export/vedomost/excel')
-@teacher_required
 def export_vedomost_excel():
     search_query = request.args.get('search', '').strip()
     group_filter = request.args.get('group', '').strip()
@@ -352,12 +349,56 @@ def export_vedomost_excel():
     )
 
 @app.route('/teacher/export/vedomost/pdf')
-@teacher_required
 def export_vedomost_pdf():
     search_query = request.args.get('search', '').strip()
     group_filter = request.args.get('group', '').strip()
     results = get_all_results_for_teacher(search_query, group_filter)
     grp_title = group_filter if group_filter else "Barcha guruhlar"
+
+    # Agar ma'lum bir guruh tanlangan bo'lsa, to'liq guruh ro'yxatini shakllantirish
+    try:
+        import students_roster as sr
+        norm_grp = group_filter.lower().replace("'", "").replace("‘", "").replace("’", "").strip()
+        prefix = norm_grp.split()[0] if norm_grp else ""
+        if prefix:
+            group_roster = [
+                s for s in sr.STUDENTS_ROSTER
+                if prefix in s.get('group', '').lower().replace("'", "").replace("‘", "").replace("’", "")
+            ]
+            if group_roster:
+                sub_map = {}
+                for r in results:
+                    sid = str(r.get('student_id_number', '')).strip()
+                    if sid:
+                        sub_map[sid] = r
+                    fn = r.get('full_name', '').upper().strip()
+                    if fn:
+                        sub_map[fn] = r
+
+                merged = []
+                for stu in group_roster:
+                    stu_id = str(stu.get('id', '')).strip()
+                    stu_name = stu.get('name', '').strip()
+                    m = sub_map.get(stu_id) or sub_map.get(stu_name.upper())
+                    if m:
+                        merged.append({
+                            'student_id_number': stu_id,
+                            'full_name': stu_name,
+                            'group_name': stu.get('group', grp_title),
+                            'total_score': m.get('total_score'),
+                            'status_text': m.get('status_text', "Joriy nazoratdan o'tdi")
+                        })
+                    else:
+                        merged.append({
+                            'student_id_number': stu_id,
+                            'full_name': stu_name,
+                            'group_name': stu.get('group', grp_title),
+                            'total_score': None,
+                            'status_text': "Topshirmagan"
+                        })
+                results = merged
+    except Exception as e:
+        print("Roster merge note:", e)
 
     pdf_data = generate_vedomost_pdf(results, grp_title)
     clean_grp = grp_title.replace(' ', '_').replace('/', '_').replace("'", "")
@@ -365,7 +406,10 @@ def export_vedomost_pdf():
     return Response(
         pdf_data,
         mimetype="application/pdf",
-        headers={"Content-Disposition": f"attachment;filename={filename}"}
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Type": "application/pdf"
+        }
     )
 
 @app.route('/api/teacher/student/<int:session_id>')

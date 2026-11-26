@@ -1,3 +1,4 @@
+import html
 from datetime import datetime
 # -*- coding: utf-8 -*-
 import io
@@ -386,7 +387,7 @@ def generate_vedomost_pdf(results, group_name="Barcha guruhlar"):
         score_text = f"<b><font color='{score_color}'>{score} ball</font></b>" if score is not None else "-"
         
         sid = r.get('student_id_number') or r.get('studentId') or "-"
-        fname = r.get('full_name') or r.get('fullName') or ""
+        fname = html.escape(str(r.get('full_name') or r.get('fullName') or ""))
         gname = r.get('group_name') or r.get('groupName') or group_name
 
         table_data.append([

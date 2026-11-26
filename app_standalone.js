@@ -1835,3 +1835,45 @@ function showQuickLookupModal() {
             alert("Natijani tekshirishda xatolik yuz berdi. Internet aloqasini tekshiring.");
         });
 }
+
+// =========================================================================
+// PDF VA EXCEL VEDOMOST YUKLAB OLISH FUNKSIYALARI
+// =========================================================================
+
+function downloadVedomostPDF(targetGroup) {
+    const groupSelect = document.getElementById("vedomostGroupSelect");
+    const teachFilter = document.getElementById("teachGroupFilter");
+    let selectedGroup = "";
+    if (targetGroup !== undefined && targetGroup !== null && targetGroup !== "") {
+        selectedGroup = targetGroup;
+    } else if (groupSelect && groupSelect.value) {
+        selectedGroup = groupSelect.value.trim();
+    } else if (teachFilter && teachFilter.value) {
+        selectedGroup = teachFilter.value.trim();
+    }
+
+    const grpTitle = selectedGroup || "Barcha guruhlar";
+    const cleanGrp = grpTitle.replace(/[\s\/\']/g, "_");
+    const url = '/teacher/export/vedomost/pdf?group=' + encodeURIComponent(selectedGroup);
+
+    // Xabar ko'rsatish
+    const toast = document.createElement("div");
+    toast.className = "fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl z-50 flex items-center gap-2 text-xs border border-slate-700";
+    toast.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-rose-400"></i> <span>' + grpTitle + ' PDF vedomosti yuklab olinmoqda...</span>';
+    document.body.appendChild(toast);
+    setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 3000);
+
+    // To'g'ridan-to'g'ri PDF faylni yuklab olish
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "Vedomost_Dasturlash_" + cleanGrp + ".pdf");
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => { if (link.parentNode) link.parentNode.removeChild(link); }, 1000);
+}
+
+function downloadVedomostPDFFromModal() {
+    const groupSelect = document.getElementById("vedomostGroupSelect");
+    const selectedGroup = groupSelect ? groupSelect.value.trim() : "";
+    downloadVedomostPDF(selectedGroup);
+}
