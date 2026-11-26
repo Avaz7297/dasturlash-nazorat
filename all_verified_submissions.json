@@ -791,5 +791,33 @@
     "finishedAt": "26/11/2026, 10:45:28",
     "tabSwitchCount": 0,
     "source_img": "msg_459_1.jpg"
+  },
+  "315261102921": {
+    "studentId": "315261102921",
+    "fullName": "SHONAZAROV ANVAR YUSUFBOY O‘G‘LI",
+    "groupName": "14mt-26 ATT (o'z)",
+    "direction": "Axborot tizimlari va texnologiyalari",
+    "course": 1,
+    "totalScore": 11,
+    "maxScore": 30,
+    "correctCount": 11,
+    "incorrectCount": 19,
+    "statusText": "Joriy nazoratdan o‘tdi",
+    "finishedAt": "25/11/2026, 21:53:09",
+    "tabSwitchCount": 0
+  },
+  "315261102886": {
+    "studentId": "315261102886",
+    "fullName": "OROLBOYEV OZODBEK OTABEK O‘G‘LI",
+    "groupName": "10mt-26 ATT (o'z)",
+    "direction": "Axborot tizimlari va texnologiyalari",
+    "course": 1,
+    "totalScore": 29,
+    "maxScore": 30,
+    "correctCount": 29,
+    "incorrectCount": 1,
+    "statusText": "Joriy nazoratdan o‘tdi",
+    "finishedAt": "26/11/2026, 13:52:03",
+    "tabSwitchCount": 0
   }
 }
