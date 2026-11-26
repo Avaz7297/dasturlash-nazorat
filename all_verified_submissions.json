@@ -819,5 +819,19 @@
     "statusText": "Joriy nazoratdan o‘tdi",
     "finishedAt": "26/11/2026, 13:52:03",
     "tabSwitchCount": 0
+  },
+  "315261102935": {
+    "studentId": "315261102935",
+    "fullName": "XAKIMOVA SARVINOZ SUXROB QIZI",
+    "groupName": "12mt-26 ATT (o'z)",
+    "direction": "Axborot tizimlari va texnologiyalari",
+    "course": 1,
+    "totalScore": 27,
+    "maxScore": 30,
+    "correctCount": 27,
+    "incorrectCount": 3,
+    "statusText": "Joriy nazoratdan o‘tdi",
+    "finishedAt": "26/11/2026, 14:35:00",
+    "tabSwitchCount": 0
   }
 }
